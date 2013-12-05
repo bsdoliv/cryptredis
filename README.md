@@ -31,7 +31,7 @@ Build
 =====
     % tools/bmakebuild.sh
     % alias bmake=~/.opt/bmake/bin/bmake
-    % bmake
+    % bmake all runtests
 
 Install
 =======
@@ -39,8 +39,8 @@ Install
 
 Usage
 =====
-    Simply include cryptredis.h then check tests/api.cpp, tests/rediscliget.cpp and
-    tests/rediscliset.cpp. The API is aimed to be simple and intuitive.
+    Simply include cryptredis.h then check tests/api.cpp, tests/rediscliget.cpp
+    and tests/rediscliset.cpp. The API is aimed to be simple and intuitive.
 
 References
 ==========
