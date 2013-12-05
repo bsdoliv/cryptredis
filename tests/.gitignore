@@ -1,0 +1,7 @@
+api/apitest
+cryptread/read
+cryptregress/regress
+cryptwrite/write
+**.o
+rediscliget/get
+rediscliset/set
