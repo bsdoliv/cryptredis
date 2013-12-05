@@ -44,12 +44,13 @@ Build
 
 Install
 =======
-    % DESTDIR=/opt sudo bmake install
+    % DESTDIR=/opt bmake install
 
 Usage
 =====
-    Simply include cryptredis.h then check tests/api.cpp, tests/rediscliget.cpp
-    and tests/rediscliset.cpp. The API is aimed to be simple and intuitive.
+    Simply include cryptredis.h, link it statically to your appliation.
+    Check tests/api.cpp, tests/rediscliget.cpp and tests/rediscliset.cpp.
+    The API is aimed to be simple and intuitive.
 
 License
 ======

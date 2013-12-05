@@ -47,7 +47,7 @@ SRCS+= encode.c tools.c
 
 # install instructions
 .ifmake install || cleaninstall # {
-FILES= redis_client.hpp
+FILES= cryptredis.h
 DESTDIR= /opt/cryptredis
 LIBDIR= /lib
 FILESDIR= /include
@@ -57,6 +57,7 @@ FILESDIR= /include
 	@${.MAKE}
 
 createdirs: .PHONY
+	sudo mkdir -p ${DESTDIR}/bin
 	sudo mkdir -p ${DESTDIR}${LIBDIR}
 	sudo mkdir -p ${DESTDIR}${FILESDIR}
 	sudo chown -R `id -u -n` ${DESTDIR}

@@ -30,4 +30,7 @@
 ABSTOP!= cd ${.PARSEDIR}; pwd
 .endif
 
+MKMAN=          no # disables manpages build
+BINDIR=		/bin
+
 # vim: set ts=8 sw=8 noet ft=make:
