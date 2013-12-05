@@ -27,6 +27,15 @@ crypto by the cost of minimum latency.
 
 CryptRedis has been inspired by MIT's project CryptDB [3].
 
+References
+----------
+[1] http://cvs.openbsd.org/papers/swapencrypt-slides.pdf
+
+[2] http://cvs.openbsd.org/papers/swapencrypt.pdf
+
+[3] http://people.csail.mit.edu/nickolai/papers/raluca-cryptdb.pdf
+
+
 Build
 =====
     % tools/bmakebuild.sh
@@ -41,12 +50,6 @@ Usage
 =====
     Simply include cryptredis.h then check tests/api.cpp, tests/rediscliget.cpp
     and tests/rediscliset.cpp. The API is aimed to be simple and intuitive.
-
-References
-==========
-[1] http://cvs.openbsd.org/papers/swapencrypt-slides.pdf
-[2] http://cvs.openbsd.org/papers/swapencrypt.pdf
-[3] http://people.csail.mit.edu/nickolai/papers/raluca-cryptdb.pdf
 
 License
 ======
