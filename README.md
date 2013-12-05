@@ -30,9 +30,7 @@ CryptRedis has been inspired by MIT's project CryptDB [3].
 References
 ----------
 [1] http://cvs.openbsd.org/papers/swapencrypt-slides.pdf
-
 [2] http://cvs.openbsd.org/papers/swapencrypt.pdf
-
 [3] http://people.csail.mit.edu/nickolai/papers/raluca-cryptdb.pdf
 
 
