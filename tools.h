@@ -28,8 +28,8 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef MISC_H
-#define MISC_H
+#ifndef TOOLS_H
+#define TOOLS_H
 
 #ifdef __cplusplus 
 # define CEXT_BEGIN \
@@ -50,4 +50,4 @@ void cryptredis_dumphex32(void *buf, size_t len);
 
 CEXT_END;
 
-#endif /* ! MISC_H */
+#endif /* ! TOOLS_H */
