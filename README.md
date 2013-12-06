@@ -9,6 +9,7 @@ CryptRedis brings OpenBSD lightweight VM encrypting mechanism to Redis.
 
     CryptRedisDb redisdb;
     redisdb.open("127.0.0.1", 6379);
+    redisdb.setCryptEnabled(true);
     redisdb.set("foo", "bar");
     std::cerr << redisdb.get("foo").toString();
     redisdb.close();
