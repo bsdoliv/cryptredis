@@ -35,14 +35,12 @@
 #include <list>
 #include <vector>
 
-#if 1
 #define CRPTRDS_NAMESPACE CrptRds
 #define CRPTRDS_USE_NAMESPACE using namespace ::CRPTRDS_NAMESPACE;
 #define CRPTRDS_BEGIN_NAMESPACE namespace CRPTRDS_NAMESPACE {
 #define CRPTRDS_END_NAMESPACE }
 
 CRPTRDS_BEGIN_NAMESPACE
-#endif
 
 class CryptRedisResultPrivate;
 class CryptRedisResult
