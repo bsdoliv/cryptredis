@@ -343,9 +343,9 @@ CryptRedisDb::setCryptEnabled(bool enable)
     d->crypt_enabled = false;
     if (!enable) {
         if (d->ciphrd_buf)
-            free(ciphrd_buf);
+            free(d->ciphrd_buf);
         if (d->deciph_buf)
-            free(deciph_buf);
+            free(d->deciph_buf);
         d->ciphrd_buf = 0;
         d->deciph_buf = 0;
         return;
