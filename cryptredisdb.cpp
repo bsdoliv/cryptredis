@@ -192,6 +192,7 @@ CryptRedisDb::CryptRedisDb() :
 
 CryptRedisDb::~CryptRedisDb()
 {
+    setCryptEnabled(false);
     close();
     delete d;
 }  
