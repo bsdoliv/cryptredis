@@ -23,7 +23,7 @@ CryptRedis brings OpenBSD lightweight VM encrypting mechanism to Redis.
 CryptRedis is a thin C++ layer for encrypting (AES) data while storing to
 Redis.  It is based in the same proven track-record kernel technology [1] from
 OpenBSD VM, developed by Niels Provos [2], thus you can expect to have robust
-crypto by the cost of minimum latency.
+crypto while minimum impact on latency.
 
 CryptRedis has been inspired by MIT's project CryptDB [3].
 
