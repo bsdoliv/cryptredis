@@ -15,7 +15,7 @@ CryptRedis brings OpenBSD lightweight VM encrypting mechanism to Redis.
     redisdb.close();
     ...
 
-    % CRYPTREDISKEY="passphrasekey" ./simple
+    % CRYPTREDISKEY="128bitslongenoughpassphrasekey12" ./simple
     bar
 
     % redis-cli get foo
