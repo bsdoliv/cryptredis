@@ -337,19 +337,25 @@ CryptRedisDb::setPort(int p)
 { d->port = p; }
 
 void
-CryptRedisDb::setCryptEnabled(bool b)
+CryptRedisDb::setCryptEnabled(bool enable)
 {
     memset(d->cryptkey, 0x0, sizeof(KEY_SIZE));
     d->crypt_enabled = false;
-    if (!b)
+    if (!enable) {
+        if (d->ciphrd_buf)
+            free(ciphrd_buf);
+        if (d->deciph_buf)
+            free(deciph_buf);
+        d->ciphrd_buf = 0;
+        d->deciph_buf = 0;
         return;
+    }
 
     char *keystr = getenv("CRYPTREDISKEY");
     if (! keystr || (strlen(keystr) < (KEY_SIZE * sizeof(u_int32_t)))) {
         d->last_error = "key is too small (less than 128bits)";
         return;
     }
-
     d->setKey(keystr);
 
     d->bufsiz = CRYPTREDIS_MAXSIZBUF;
