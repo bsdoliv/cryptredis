@@ -1,7 +1,7 @@
 CryptRedis
 ==========
 
-CryptRedis brings OpenBSD lightweight VM encrypting mechanism to Redis.
+C++ connector for Redis with OpenBSD lightweight VM encrypting mechanism.
 
     ...
     // simple.cpp
@@ -21,10 +21,10 @@ CryptRedis brings OpenBSD lightweight VM encrypting mechanism to Redis.
     % redis-cli get foo
     "\\xcb32fb1d\\xc3fb804d\\x49795a76\\x4efe2dad"
 
-CryptRedis is a thin C++ layer for encrypting (AES) data while storing to
-Redis.  It is based in the same proven track-record kernel technology [1] from
-OpenBSD VM, developed by Niels Provos [2], thus you can expect to have robust
-crypto while minimum impact on latency.
+CryptRedis is a thin C++ connector for Redis, which transparently encrypts
+(AES) stored data.  It is based in the same proven track-record kernel
+technology [1] from OpenBSD VM, developed by Niels Provos [2], thus you can
+expect robust crypto still minimum impact on latency.
 
 CryptRedis has been inspired by MIT's project CryptDB [3].
 
