@@ -35,7 +35,6 @@ LIB= cryptredis
 MKPICLIB=       no # disables build of lib*_pic.a
 MKPICINSTALL=   no # disables install of lib*_pic.a
 MKMAN=          no # disables manpages build
-NOGCCERROR=     1 # removes -Werror
 
 .PATH: ${.CURDIR}/..
 SRCS= cryptredisdb.cpp cryptredisresult.cpp bsd-rijndael.c bsd-crypt.c
