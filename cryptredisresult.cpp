@@ -119,6 +119,8 @@ CryptRedisResult::statusString()
         return "CryptRedisResult::Ok";
     case CryptRedisResult::Fail: 
         return "CryptRedisResult::Fail";
+    default:
+        return "No such status";
     }
 }
 
