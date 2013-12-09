@@ -28,6 +28,7 @@
 
 .include <bsd.own.mk>
 
+#CPPFLAGS+= -DDEBUG_RIJNDAEL_CTXT
 CXXFLAGS+= -std=c++0x
 LDSTATIC= -static
 LIB= cryptredis
