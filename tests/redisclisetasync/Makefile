@@ -26,41 +26,18 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SUBDIR= cryptread
-SUBDIR+= cryptwrite
-SUBDIR+= cryptregress
-SUBDIR+= api
-SUBDIR+= rediscliget
-SUBDIR+= rediscliset
-SUBDIR+= redisclisetasync
+.PATH: ${.CURDIR}/..
+PROG= setasync
+SRCS+= redisclisetasync.cpp
 
-TESTS= api/apitest
-TESTS+= cryptregress/regress
-TESTS+= "cryptwrite/cryptwrite.sh 8"
-TESTS+= cryptread/cryptread.sh
-TESTS+= "cryptwrite/cryptwrite.sh 16"
-TESTS+= cryptread/cryptread.sh
-TESTS+= "cryptwrite/cryptwrite.sh 8mb"
-TESTS+= cryptread/cryptread.sh
+CPPFLAGS+= -ggdb3
+LDADD+= -lstdc++ -lpthread
+LDADD+= ${.CURDIR}/../../lib/libcryptredis.a
 
 run: .PHONY
-	@for t in ${TESTS}; do \
-		printf "=> running %s %s" $${t}; \
-		eval ./$${t} >/dev/null 2>&1; \
-		if [ $$? = 0 ]; then \
-			printf " success"; \
-		else \
-			printf " fail"; \
-		fi; \
-		printf "\n"; \
-	done
-	cd ${.CURDIR}/rediscliset && ${.MAKE} run key="foo" value="bar"
-	cd ${.CURDIR}/rediscliget && ${.MAKE} run key="foo"
+	CRYPTREDISKEY=41d962ad5479795a10de0a369dea3b1e ${.CURDIR}/${PROG} $${key} $${value}
 
-run-perftests: .PHONY
-	cd ${.CURDIR}/rediscliset && ${.MAKE} run-perftests
-	cd ${.CURDIR}/rediscliget && ${.MAKE} run-perftests
-
-.include <bsd.subdir.mk>
+.include "${.CURDIR}/../perf.mk"
+.include <bsd.prog.mk>
 
 # vim: set ts=8 sw=8 noet:
