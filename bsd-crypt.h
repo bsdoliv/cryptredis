@@ -41,7 +41,6 @@ CEXT_BEGIN
 
 typedef u_int32_t rediscrypt_key_t;
 
-void cryptredis_key_prepare(const rediscrypt_key_t *k, int encrypt);
 void cryptredis_encrypt(const rediscrypt_key_t *k,
                         const char *src,
                         u_int32_t *dst,

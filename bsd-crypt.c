@@ -31,15 +31,17 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <err.h>
 
 #include "bsd-crypt.h"
 #include "bsd-rijndael.h"
 
-static u_int64_t gblock = 0x5fcbd1e0e617668f;
-static u_int32_t encrypt_initialized = 1;
-/* rediscrypt_key_t *kcur = NULL; */
 static rijndael_ctx ctxt;
+
+static void cryptredis_dump_ctxt(rijndael_ctx *ctxt);
+static u_int64_t cryptredis_key_prepare(const rediscrypt_key_t *key,
+                                   int encrypt);
 
 void 
 cryptredis_encrypt(const rediscrypt_key_t *key,
@@ -47,13 +49,13 @@ cryptredis_encrypt(const rediscrypt_key_t *key,
                    u_int32_t *dst,
                    size_t count)
 {
-        u_int64_t block = gblock;
+        u_int64_t block = 0;
         u_int32_t *dsrc = (u_int32_t *)src;
         u_int32_t *ddst = dst;
         u_int32_t iv[4];
         u_int32_t iv1, iv2, iv3, iv4;
 
-        cryptredis_key_prepare(key, 1);
+        block = cryptredis_key_prepare(key, 1);
 
         count /= sizeof(u_int32_t);
 
@@ -86,16 +88,13 @@ void cryptredis_decrypt(const rediscrypt_key_t *key,
                         char *dst,
                         size_t count)
 {
-        u_int64_t block = gblock;
+        u_int64_t block = 0;
         u_int32_t *dsrc = (u_int32_t *)src;
         u_int32_t *ddst = (u_int32_t *)dst;
         u_int32_t iv[4];
         u_int32_t iv1, iv2, iv3, iv4, niv1, niv2, niv3, niv4;
 
-        if (!encrypt_initialized)
-                errx(1, "rediscrypt_decrypt: key not initialized");
-
-        cryptredis_key_prepare(key, 0);
+        block = cryptredis_key_prepare(key, 0);
 
         count /= sizeof(u_int32_t);
 
@@ -123,32 +122,26 @@ void cryptredis_decrypt(const rediscrypt_key_t *key,
                 ddst += 4;
         }
 }
-void 
+
+static void 
 cryptredis_dump_ctxt(rijndael_ctx *ctxt)
 {
+#ifdef DEBUG_RIJNDAEL_CTXT
         fprintf(stderr, "=>");
         fprintf(stderr, " c->enc_only: %d", ctxt->enc_only);
         fprintf(stderr, " c->Nr: %d", ctxt->Nr);
         fprintf(stderr, " sizeof(c->ek): %ld", sizeof(ctxt->ek));
         fprintf(stderr, " sizeof(c->dk): %ld", sizeof(ctxt->dk));
         fprintf(stderr, "\n");
+#endif
 }
 
-void
+static u_int64_t
 cryptredis_key_prepare(const rediscrypt_key_t *key, int encrypt)
 {
-        /*
-         * Check if we have prepared for this key already,
-         * if we only have the encryption schedule, we have
-         * to recompute and get the decryption schedule also.
-         */
-#if 0
-        if (kcur == key && (encrypt || !ctxt.enc_only))
-                return;
-#endif
-
-        if (!encrypt_initialized)
-                encrypt_initialized = 1;
+        /* initializes gblock with half the key */
+        u_int64_t block;
+        memcpy(&block, &key[2], sizeof(block)); 
 
         if (encrypt)
                 rijndael_set_key_enc_only(&ctxt, (u_char *)key,
@@ -157,8 +150,8 @@ cryptredis_key_prepare(const rediscrypt_key_t *key, int encrypt)
                 rijndael_set_key(&ctxt, (u_char *)key,
                     sizeof(rediscrypt_key_t) * KEY_SIZE * 8);
 
-/*        kcur = key; */
         cryptredis_dump_ctxt(&ctxt);
+        return block;
 }
 
 /* vim: set ts=8 sw=8 et: */
