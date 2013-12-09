@@ -106,8 +106,7 @@ CryptRedisDbPrivate::buildReply(::redisReply *redisrpl,
         bzero(deciph_buf, bufsiz);
         bzero(ciphrd_buf, bufsiz);
         size_t declen = cryptredis_decode(str, ciphrd_buf);
-        cryptredis_decrypt(cryptkey, ciphrd_buf,
-                           deciph_buf, declen);
+        cryptredis_decrypt(cryptkey, ciphrd_buf, deciph_buf, declen);
         str = deciph_buf;
         len = strlen(str);
     }
