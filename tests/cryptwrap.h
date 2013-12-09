@@ -37,8 +37,8 @@
 CEXT_BEGIN
 
 void encrypt_wrap(const rediscrypt_key_t *key, const char *src,
-                  char *dst, int dstlen);
-void decrypt_wrap(const rediscrypt_key_t *key, const char *src,
+                  u_int32_t *dst, int dstlen);
+void decrypt_wrap(const rediscrypt_key_t *key, const u_int32_t *src,
                   char *dst, int len);
 
 CEXT_END

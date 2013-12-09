@@ -35,22 +35,20 @@
 #include "cryptwrap.h"
 #include "tools.h"
 
-u_int64_t block = 6464;
-
 void
-encrypt_wrap(const rediscrypt_key_t *key, const char *src, char *dst,
+encrypt_wrap(const rediscrypt_key_t *key, const char *src, u_int32_t *dst,
              int dstlen)
 {
     fprintf(stderr, "=> string to encrypt: %s\n", src);
-    cryptredis_encrypt(key, src, (u_int32_t *)dst, dstlen);
-    cryptredis_dumphex32(dst, dstlen);
+    cryptredis_encrypt(key, src, dst, dstlen);
+    cryptredis_dumphex32("=> encrypted", dst, dstlen);
 }
 
 void 
-decrypt_wrap(const rediscrypt_key_t *key, const char *src, char *dst, 
+decrypt_wrap(const rediscrypt_key_t *key, const u_int32_t *src, char *dst, 
              int len)
 {
-    cryptredis_decrypt(key, (u_int32_t *)src, dst, len);
+    cryptredis_decrypt(key, src, dst, len);
     fprintf(stderr, "=> dstlen: %d\n", len);
     fprintf(stderr, "=> decrypted: %s\n", dst);
     fprintf(stderr, "=> strlen(sdec): %ld\n", strlen(dst));
