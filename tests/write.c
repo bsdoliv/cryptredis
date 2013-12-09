@@ -80,7 +80,7 @@ main(int argc, char **argv)
     fprintf(stderr, "=> len: %ld\n", len);
     fprintf(stderr, "=> make64align(dstlen): %ld\n", dstlen);
 
-    char *dst = (char *)malloc(dstlen);
+    u_int32_t *dst = (u_int32_t *)malloc(dstlen);
     bzero(dst, dstlen);
 
     fprintf(stderr, "==> test encrypt\n");
