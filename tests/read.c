@@ -55,7 +55,7 @@ test_disk_retrieve(rediscrypt_key_t *key)
     fprintf(stderr, "=> read from store: %s\n", senc);
 
     size_t len = cryptredis_decode(senc, ciphbuf);
-    decrypt_wrap(key, (const char *)ciphbuf, (char *)deciphbuf, len);
+    decrypt_wrap(key, ciphbuf, deciphbuf, len);
     free(senc);
 }
 
@@ -94,7 +94,7 @@ main(int argc, char **argv)
     fprintf(stderr, "\n");
 
     bzero(deciphbuf, SIZBUF);
-    decrypt_wrap(key, (const char *)ciphbuf, (char *)deciphbuf, declen);
+    decrypt_wrap(key, ciphbuf, deciphbuf, declen);
 
     /* dump deciphbuf */
     fprintf(stderr, "=> deciphred buffer: %s", deciphbuf);
