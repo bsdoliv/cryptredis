@@ -36,14 +36,29 @@ if [ x"$1" = x"-p" ]; then
 fi
 
 # len 8
+test_8()
+{
 echo "test" | ${cmd}
+}
 
 # len 16
+test_16()
+{
 echo "test hello world" | ${cmd}
+}
 
 # len 16*1024*512 (8MB)
+test_8mb()
+{
 ( i=0; while [ $i -lt 512024 ]; do \
         printf "test hello world "; \
         let "i = i + 1"; \
 done; echo ) | ${cmd}
+}
 
+main()
+{
+    eval test_${1}
+}
+
+main "${@}"

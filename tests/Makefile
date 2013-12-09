@@ -35,12 +35,16 @@ SUBDIR+= rediscliset
 
 TESTS= api/apitest
 TESTS+= cryptregress/regress
-TESTS+= cryptwrite/cryptwrite.sh
+TESTS+= "cryptwrite/cryptwrite.sh 8"
+TESTS+= cryptread/cryptread.sh
+TESTS+= "cryptwrite/cryptwrite.sh 16"
+TESTS+= cryptread/cryptread.sh
+TESTS+= "cryptwrite/cryptwrite.sh 8mb"
 TESTS+= cryptread/cryptread.sh
 
 run: .PHONY
 	@for t in ${TESTS}; do \
-		printf "=> running %s" $${t}; \
+		printf "=> running %s %s" $${t}; \
 		eval ./$${t} >/dev/null 2>&1; \
 		if [ $$? = 0 ]; then \
 			printf " success"; \
