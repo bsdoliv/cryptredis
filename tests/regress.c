@@ -46,22 +46,43 @@
 #define SIZBUF 1024
 char rawbuf[SIZBUF];
 char encbuf[SIZBUF];
+rediscrypt_key_t key[KEY_SIZE] = { 
+    0xffaabbcc,
+    0xaabbccdd,
+    0xbbccddee,
+    0xccddeeff
+};
 
-int
-main(int argc, char **argv)
+void
+test_decrypt()
 {
-    rediscrypt_key_t key[KEY_SIZE] = { 
-        0xffaabbcc,
-        0xaabbccdd,
-        0xbbccddee,
-        0xccddeeff
-    };
+    fprintf(stderr, "==> begin test decrypt\n");
+    bzero(rawbuf, SIZBUF);
+    bzero(encbuf, SIZBUF);
+    strncpy(rawbuf, "test hello world", SIZBUF);
+    size_t buflen = cryptredis_align64(strlen(rawbuf));
+    u_int32_t encrybuf[] = { 
+        0xb4f8b91b, 0x051b3206, 0x29683e3a, 0xa3690f16 };
 
+    char decrybuf[SIZBUF];
+    bzero(decrybuf, SIZBUF);
+
+//    decrypt_wrap(key,  (u_int32_t *)encrybuf, rawbuf, buflen);
+    cryptredis_decrypt(key, encrybuf, decrybuf, sizeof(encrybuf));
+    fprintf(stderr, "=> rawbuf: %s\n", rawbuf);
+    fprintf(stderr, "=> decrybuf: %s\n", decrybuf);
+    assert(strncmp(rawbuf, decrybuf, strlen(rawbuf)) == 0);
+    fprintf(stderr, "==> end test decrypt\n");
+}
+
+void
+test_encrypt()
+{
+    fprintf(stderr, "==> begin test make64align\n");
     bzero(rawbuf, SIZBUF);
     bzero(encbuf, SIZBUF);
     strncpy(rawbuf, "test hello world", SIZBUF);
 
-    fprintf(stderr, "==> begin test make64align\n");
     size_t buflen = cryptredis_align64(strlen(rawbuf));
     assert(buflen == 16);
     fprintf(stderr, "=> make64align(dstlen): %ld\n", buflen);
@@ -69,23 +90,23 @@ main(int argc, char **argv)
 
     fprintf(stderr, "==> begin test encrypt\n");
     u_int32_t encrybuf[] = { 
-            0x6ee65e16, 0x5e815738, 0x50262d0d, 0x42772d4d };
-    encrypt_wrap(key, rawbuf, encbuf, buflen);
-    cryptredis_dumphex32(encbuf, buflen);
+        0xb4f8b91b, 0x051b3206, 0x29683e3a, 0xa3690f16 };
+    encrypt_wrap(key, rawbuf, (u_int32_t *)encbuf, buflen);
+    cryptredis_dumphex32("=> encbuf", encbuf, buflen);
     assert(memcmp(encbuf, encrybuf, buflen) == 0);
     fprintf(stderr, "==> end test encrypt\n");
 
-    fprintf(stderr, "==> begin test decrypt\n");
-    char decrybuf[SIZBUF];
-    bzero(decrybuf, SIZBUF);
-    decrypt_wrap(key,  encbuf, decrybuf, buflen);
-    fprintf(stderr, "=> rawbuf: %s\n", rawbuf);
-    fprintf(stderr, "=> decrybuf: %s\n", decrybuf);
-    assert(strncmp(rawbuf, decrybuf, strlen(rawbuf)) == 0);
-    fprintf(stderr, "==> end test decrypt\n");
 
+}
+
+void
+test_encode()
+{
     fprintf(stderr, "==> begin test encode\n");
-    char encdbufs[] = "\\x6ee65e16\\x5e815738\\x50262d0d\\x42772d4d";
+    char encdbufs[] = "\\x2d582960\\xde09730e\\xab6b33fc\\x7391780d";
+    u_int32_t encrybuf[] = { 
+            0x2d582960, 0xde09730e, 0xab6b33fc, 0x7391780d };
+    size_t buflen = sizeof(encrybuf);
     char *encds = (char *)malloc(cryptredis_encsiz(buflen));
     bzero(encds, cryptredis_encsiz(buflen));
     cryptredis_encode(encds, (u_int32_t *)encrybuf, buflen);
@@ -95,10 +116,19 @@ main(int argc, char **argv)
     fprintf(stderr, "=> strlen(encds): %ld\n", strlen(encds));
     assert(strlen(encdbufs) == strlen(encds));
     assert(strncmp(encdbufs, encds, buflen) == 0);
+    free(encds);
     fprintf(stderr, "==> end test encode\n");
+}
 
+void
+test_decode()
+{
     fprintf(stderr, "==> begin test decode\n");
     u_int32_t decdbuf[SIZBUF];
+    u_int32_t encrybuf[] = { 
+            0x2d582960, 0xde09730e, 0xab6b33fc, 0x7391780d };
+    char encds[] = "\\x2d582960\\xde09730e\\xab6b33fc\\x7391780d";
+    size_t buflen = sizeof(encrybuf);
     size_t len = cryptredis_decode(encds, decdbuf);
     fprintf(stderr, "=> encrybuf: x%08x x%08x x%08x x%08x\n", 
             encrybuf[0], encrybuf[1], encrybuf[2], encrybuf[3]);
@@ -109,8 +139,17 @@ main(int argc, char **argv)
     assert(buflen == len);
     assert(memcmp(decdbuf, encrybuf, buflen) == 0);
     fprintf(stderr, "==> end test decode\n");
+}
 
-    free(encds);
+int
+main(int argc, char **argv)
+{
+    test_encode();
+    test_decode();
+    test_encrypt();
+    test_decrypt();
 
     return 0;
 }
+
+/* vim: set ts=4 sw=4 et: */
