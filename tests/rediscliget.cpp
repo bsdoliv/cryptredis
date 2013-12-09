@@ -47,7 +47,7 @@ main(int argc, char **argv)
     std::cerr << "=> crypt enabled: " 
         << (redisdb.cryptEnabled() ?  "true" : "false")
         << std::endl;
-    std::cerr << "=> decrypted key: " 
+    std::cerr << "=> decrypted value: " 
         << redisdb.get(argv[1]).toString() 
         << std::endl;
 
