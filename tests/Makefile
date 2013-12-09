@@ -53,8 +53,12 @@ run: .PHONY
 		fi; \
 		printf "\n"; \
 	done
-	cd rediscliset && ${.MAKE} run key="foo" value="bar"
-	cd rediscliget && ${.MAKE} run key="foo"
+	cd ${.CURDIR}/rediscliset && ${.MAKE} run key="foo" value="bar"
+	cd ${.CURDIR}/rediscliget && ${.MAKE} run key="foo"
+
+run-perftests: .PHONY
+	cd ${.CURDIR}/rediscliset && ${.MAKE} run-perftests
+	cd ${.CURDIR}/rediscliget && ${.MAKE} run-perftests
 
 .include <bsd.subdir.mk>
 

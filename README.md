@@ -21,10 +21,10 @@ C++ connector for Redis with OpenBSD lightweight VM encrypting mechanism.
     % redis-cli get foo
     "\\xcb32fb1d\\xc3fb804d\\x49795a76\\x4efe2dad"
 
-CryptRedis is a thin C++ connector for Redis, which transparently encrypts
-(AES) stored data.  It is based in the same proven track-record kernel
-technology [1] from OpenBSD VM, developed by Niels Provos [2], thus you can
-expect robust crypto still minimum impact on latency.
+CryptRedis is a thin C++ connector which transparently encrypts/decrypts (AES)
+data while storing/retrieving it to/from Redis.  It is based in the same proven
+track-record kernel technology [1] from OpenBSD VM, developed by Niels Provos
+[2], thus we aim to offer robust crypto still minimum latency impact.
 
 CryptRedis has been inspired by MIT's project CryptDB [3].
 
