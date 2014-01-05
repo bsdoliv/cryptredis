@@ -39,6 +39,8 @@ References
 
 Build
 =====
+    In Linux, be you have the following installed: ksh, g++, gcc
+
     % tools/bmakebuild.sh
     % alias bmake=~/.opt/bmake/bin/bmake
     % bmake all runtests
