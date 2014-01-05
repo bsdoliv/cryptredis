@@ -113,13 +113,13 @@ CryptRedisDbPrivate::buildReply(::redisReply *redisrpl,
 
     switch (redisrpl->type) {
     case REDIS_REPLY_ERROR:
-        rpl->setData(str);
         rpl->setStatus(CryptRedisResult::Fail);
-        break;
+        if (0)
+            /* FALLTHROUGH */
     case REDIS_REPLY_STATUS:
     case REDIS_REPLY_STRING:
-        rpl->setData(str);
         rpl->setStatus(CryptRedisResult::Ok);
+        rpl->setData(str);
         break;
     case REDIS_REPLY_INTEGER:
         rpl->setData(redisrpl->integer);
