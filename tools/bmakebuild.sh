@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2013 Andre Oliveira <me@andreldoliveira.org>
+# Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
@@ -13,7 +13,7 @@
 #    documentation and/or other materials provided with the distribution.
 # 3. All advertising materials mentioning features or use of this software
 #    must display the following acknowledgement:
-#        This product includes software developed by Andre Oliveira.
+#        This product includes software developed by Andre de Oliveira.
 # 4. Neither the name of the author nor the names of its contributors may be
 #    used to endorse or promote products derived from this software without
 #    specific prior written permission.
@@ -63,7 +63,6 @@ bootstrap_bmake()
     bmakexargs=
 
     echo "==> Bootstrapping bmake"
-#    copy_src ${builddir}/bin/bmake ${builddir}/bmake
     runcmd "(cd ${builddir}/${bmakesrc} && env $bmakexenv $shprog \
                 ./boot-strap $configure_quiet_flags -q \
                 -o $opsys --prefix=$prefix \
@@ -84,7 +83,7 @@ bootstrap_mkfiles()
 
 loadvars()
 {
-    export builddir=$(mktemp -d /tmp/bmake-XXX)
+    export builddir=$(mktemp -d /tmp/bmake-XXXXXX)
 
     export shprog="sh"
     export opsys=`uname -s | tr -d /-`
