@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Andre Oliveira <me@andreldoliveira.org>
+# Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -11,7 +11,7 @@
 #    documentation and/or other materials provided with the distribution.
 # 3. All advertising materials mentioning features or use of this software
 #    must display the following acknowledgement:
-#      This product includes software developed by Andre Oliveira.
+#      This product includes software developed by Andre de Oliveira.
 # 4. The name of the author may not be used to endorse or promote products
 #    derived from this software without specific prior written permission.
 #
@@ -29,10 +29,12 @@
 .include <bsd.own.mk>
 
 #CPPFLAGS+= -DDEBUG_RIJNDAEL_CTXT
-CXXFLAGS+= -std=c++0x
+#CXXFLAGS+= -std=c++0x
 LDSTATIC= -static
 LIB= cryptredis
 
+MKLINT=         no
+MKPROFILE=      no
 MKPICLIB=       no # disables build of lib*_pic.a
 MKPICINSTALL=   no # disables install of lib*_pic.a
 MKMAN=          no # disables manpages build
