@@ -1,6 +1,6 @@
 This file is part of the CryptRedis software.
 
-  * Copyright (c) 2013 Andre Oliveira <me@andreldoliveira.org>
+  * Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
   * All rights reserved.
   * 
   * Redistribution and use in source and binary forms, with or without
@@ -13,7 +13,7 @@ This file is part of the CryptRedis software.
   *    documentation and/or other materials provided with the distribution.
   * 3. All advertising materials mentioning features or use of this software
   *    must display the following acknowledgement:
-  *        This product includes software developed by Andre Oliveira.
+  *        This product includes software developed by Andre de Oliveira.
   * 4. The name of the author nor the names of its contributors may be used to
   *    endorse or promote products derived from this software without specific
   *    prior written permission.
