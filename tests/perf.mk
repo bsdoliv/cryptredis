@@ -1,5 +1,6 @@
 REPEAT=1000
 
+OS!= uname -s
 .if ${OS} == "Linux" 
 run-perftests: .PHONY
 	@echo "=> '${PROG}' crypto disabled"
