@@ -31,6 +31,6 @@
 .PATH: ${ABSTOP}
 
 CPPFLAGS+= -I${ABSTOP} -DDEBUG_RIJNDAEL_CTXT
-CXXFLAGS+= -std=c++0x
+#CXXFLAGS+= -std=c++0x
 
 # vim: set ts=8 sw=8 noet ft=make:
