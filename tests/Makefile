@@ -29,17 +29,17 @@
 SUBDIR= cryptread
 SUBDIR+= cryptwrite
 SUBDIR+= cryptregress
-SUBDIR+= api
+#SUBDIR+= api
 SUBDIR+= rediscliget
 SUBDIR+= rediscliset
 
-TESTS= api/apitest
+#TESTS= api/apitest
 TESTS+= cryptregress/regress
 TESTS+= "cryptwrite/cryptwrite.sh 8"
 TESTS+= cryptread/cryptread.sh
 TESTS+= "cryptwrite/cryptwrite.sh 16"
 TESTS+= cryptread/cryptread.sh
-TESTS+= "cryptwrite/cryptwrite.sh 8mb"
+#TESTS+= "cryptwrite/cryptwrite.sh 8mb"
 TESTS+= cryptread/cryptread.sh
 
 run: .PHONY
