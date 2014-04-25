@@ -107,8 +107,7 @@ test_encode()
     u_int32_t encrybuf[] = { 
             0x2d582960, 0xde09730e, 0xab6b33fc, 0x7391780d };
     size_t buflen = sizeof(encrybuf);
-    char *encds = (char *)malloc(cryptredis_encsiz(buflen));
-    bzero(encds, cryptredis_encsiz(buflen));
+    char *encds = (char *)calloc(1, cryptredis_encsiz(buflen));
     cryptredis_encode(encds, (u_int32_t *)encrybuf, buflen);
     fprintf(stderr, "=> encdbufs: %s\n", encdbufs);
     fprintf(stderr, "=> encds: %s\n", encds);

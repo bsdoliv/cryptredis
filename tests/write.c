@@ -80,15 +80,13 @@ main(int argc, char **argv)
     fprintf(stderr, "=> len: %ld\n", len);
     fprintf(stderr, "=> make64align(dstlen): %ld\n", dstlen);
 
-    u_int32_t *dst = (u_int32_t *)malloc(dstlen);
-    bzero(dst, dstlen);
+    u_int32_t *dst = (u_int32_t *)calloc(1, dstlen);
 
     fprintf(stderr, "==> test encrypt\n");
     encrypt_wrap(key, src, dst, dstlen);
 
     fprintf(stderr, "==> test encode\n");
-    char *encbuf = (char *)malloc(cryptredis_encsiz(dstlen));
-    bzero(encbuf, cryptredis_encsiz(dstlen));
+    char *encbuf = (char *)calloc(1, cryptredis_encsiz(dstlen));
     cryptredis_encode(encbuf, (u_int32_t *)dst, dstlen);
     fprintf(stderr, "==> test diskstore\n");
     disk_store("/tmp/temp_store", encbuf, strlen(encbuf));

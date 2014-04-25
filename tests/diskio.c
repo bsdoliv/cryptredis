@@ -49,7 +49,7 @@ disk_retrieve(const char *filepath, char **senc, int *n)
 
     *n = st.st_size;
     fprintf(stderr, "=> reading %d bytes\n", *n);
-    *senc = (char *)malloc(*n);
+    *senc = (char *)calloc(1, *n);
     int r = fread(*senc, 1, *n, f);
 
     fprintf(stderr, "=> %d bytes actually read\n", r);

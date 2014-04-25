@@ -75,8 +75,7 @@ main(int argc, char **argv)
     if (argc >= 2) {
         disk_retrieve(argv[1], (char **)&src, &len);
     } else {
-        src = (char *)malloc(SIZBUF);
-        bzero(src, SIZBUF);
+        src = (char *)calloc(1, SIZBUF);
         if (fgets(src, SIZBUF, stdin) == NULL)
             errx(1, "failed to read from stdin");
     }

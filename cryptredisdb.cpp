@@ -359,8 +359,8 @@ CryptRedisDb::setCryptEnabled(bool enable)
     d->setKey(keystr);
 
     d->bufsiz = CRYPTREDIS_MAXSIZBUF;
-    d->ciphrd_buf = (u_int32_t *)malloc(d->bufsiz);
-    d->deciph_buf = (char *)malloc(d->bufsiz);
+    d->ciphrd_buf = (u_int32_t *)calloc(1, d->bufsiz);
+    d->deciph_buf = (char *)calloc(1, d->bufsiz);
 
     if (! d->ciphrd_buf ||
         ! d->deciph_buf) {
