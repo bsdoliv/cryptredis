@@ -33,16 +33,19 @@
 #include <unistd.h>
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <iostream>
 
 #include "cryptredis.h"
 #include "encode.h"
 
-std::string random_nstr()
+std::string
+random_nstr()
 {
-    uint64_t random_value = ::rand() % 1000000;
-    return std::to_string(random_value);
+    char randbuf[6];
+    arc4random_buf(randbuf, 6);
+    return std::string(randbuf);
 }
 
 void
