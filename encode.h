@@ -33,12 +33,12 @@
 
 #include "tools.h"
 
-CEXT_BEGIN
+__BEGIN_DECLS
 
-size_t cryptredis_encsiz(int len);
-void cryptredis_encode(char *dst, const u_int32_t *src, int len);
-size_t cryptredis_decode(const char *src, void *dst);
+size_t	cryptredis_encsiz(int);
+void	cryptredis_encode(char *, const u_int32_t *, int);
+size_t	cryptredis_decode(const char *, void *);
 
-CEXT_END
+__END_DECLS
 
 #endif /* ! ENCODE_H */
