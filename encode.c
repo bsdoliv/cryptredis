@@ -30,57 +30,61 @@
 
 #include <sys/types.h>
 
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "encode.h"
 
 size_t
 cryptredis_encsiz(int len)
 {
-    int senclen = 
-        (len * 2) +                     /* 2 chars to represent each byte */
-        ((len / sizeof(u_int32_t)) * 2);/* for each block a "\x"
-                                           separators */
+	int senclen = 
+	    (len * 2) +			  /* 2 chars to represent each byte */
+	    ((len / sizeof(u_int32_t)) * 2); /* for each block a "\x" 
+						separators */
 
-    return senclen;
+	return (senclen);
 }
 
 void
 cryptredis_encode(char *dst, const u_int32_t *src, int len)
 {
-    const u_int32_t *ps = src;
-    char *pd = dst;
-    int step = (sizeof(*ps) * 2) + 2;
-    int i = 0;
-    for (i = 0; i < (len / sizeof(*ps)); ps++, i++) {
-        sprintf(pd, "\\x%08x", *ps);
-        pd += step;
-    }
+	const  u_int32_t *ps;
+	int    i, step;
+	char  *pd;
+
+	step = (sizeof(*ps) * 2) + 2;
+	pd = dst;
+	ps = src;
+
+	for (i = 0; i < (len / sizeof(*ps)); ps++, i++) {
+		sprintf(pd, "\\x%08x", *ps);
+		pd += step;
+	}
 }
 
 size_t
 cryptredis_decode(const char *src, void *dst)
 {
-    int dstlen = 0;
-#   define BLKSIZ 16
-    char blkbuf[BLKSIZ];
-    char *se = strndup(src, strlen(src));
-    if (se == NULL)
-        errx(1, "couldn't allocate memory for decoding operation");
-    char *p = strtok(se, "\\x");
-    u_int32_t *pd = (u_int32_t *)dst;
-    for (; p != NULL; p = strtok(NULL, "\\x")) {
-        bzero(blkbuf, BLKSIZ);
-        snprintf(blkbuf, BLKSIZ, "0x%s", p);
-        *pd = (u_int32_t)strtol(blkbuf, (char **)NULL, 16);
-        pd++;
-        dstlen += sizeof(*pd);
-    }
-    free(se);
-    return dstlen;
-#   undef BLKSIZ
-}
+	int        dstlen = 0;
+	u_int32_t *pd;
+	char	   blkbuf[16];
+	char	  *p, *se;
 
-/* vim: set ts=4 sw=4 et: */
+	if ((se = strndup(src, strlen(src))) == NULL)
+		errx(1, "couldn't allocate memory for decoding operation");
+
+	p = strtok(se, "\\x");
+	pd = (u_int32_t *)dst;
+	for (; p != NULL; p = strtok(NULL, "\\x")) {
+		bzero(blkbuf, sizeof(blkbuf));
+		(void)snprintf(blkbuf, sizeof(blkbuf), "0x%s", p);
+		*pd = (u_int32_t)strtol(blkbuf, (char **)NULL, 16);
+		pd++;
+		dstlen += sizeof(*pd);
+	}
+
+	free(se);
+	return (dstlen);
+}
