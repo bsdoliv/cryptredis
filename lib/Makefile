@@ -1,68 +1,54 @@
 # Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
 # All rights reserved.
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the distribution.
-# 3. All advertising materials mentioning features or use of this software
-#    must display the following acknowledgement:
-#      This product includes software developed by Andre de Oliveira.
-# 4. The name of the author may not be used to endorse or promote products
-#    derived from this software without specific prior written permission.
+# Permission to use, copy, modify, and distribute this software for any purpose
+# with or without fee is hereby granted, provided that the above copyright
+# notice and this permission notice appear in all copies.
 #
-# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-# IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-# NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
 
-.include <bsd.own.mk>
+#CPPFLAGS+=	-DDEBUG_RIJNDAEL_CTXT
+LDSTATIC=	-static
+LIB=		cryptredis
 
-#CPPFLAGS+= -DDEBUG_RIJNDAEL_CTXT
-#CXXFLAGS+= -std=c++0x
-LDSTATIC= -static
-LIB= cryptredis
+MKLINT=		no
+MKPROFILE=	no
+MKPICLIB=	no # disables build of lib*_pic.a
+MKPICINSTALL=	no # disables install of lib*_pic.a
+MKMAN=		no # disables manpages build
 
-MKLINT=         no
-MKPROFILE=      no
-MKPICLIB=       no # disables build of lib*_pic.a
-MKPICINSTALL=   no # disables install of lib*_pic.a
-MKMAN=          no # disables manpages build
-
-.PATH: ${.CURDIR}/..
-SRCS= cryptredisdb.cpp cryptredisresult.cpp bsd-rijndael.c bsd-crypt.c
-SRCS+= encode.c tools.c
+.PATH:	${.CURDIR}/..
+SRCS=	cryptredisdb.cpp cryptredisresult.cpp bsd-rijndael.c bsd-crypt.c \
+	encode.c tools.c
 
 .include "${.CURDIR}/../hiredis/hiredis.mk"
-#.PATH: ${.CURDIR}/../hiredis
-#SRCS+= async.c dict.c hiredis.c net.c sds.c
+.PATH:	${.CURDIR}/../hiredis
+SRCS+=	async.c dict.c hiredis.c net.c sds.c
 
 # install instructions
 .ifmake install || cleaninstall # {
-FILES= cryptredis.h
-DESTDIR= /opt/cryptredis
-LIBDIR= /lib
-FILESDIR= /include
+
+.include <bsd.own.mk>
+
+FILES=		cryptredis.h
+DESTDIR=	/opt/cryptredis
+LIBDIR=		/lib
+FILESDIR=	/include
 
 .ifmake install # {
 .BEGIN: createdirs
 	@${.MAKE}
 
 createdirs: .PHONY
-	sudo mkdir -p ${DESTDIR}/bin
-	sudo mkdir -p ${DESTDIR}${LIBDIR}
-	sudo mkdir -p ${DESTDIR}${FILESDIR}
-	sudo chown -R `id -u -n` ${DESTDIR}
+	mkdir -p ${DESTDIR}${LIBDIR}
+	mkdir -p ${DESTDIR}${FILESDIR}
+	chown -R `id -u -n` ${DESTDIR}
 .endif # } install
 
 .ifmake cleaninstall # {
@@ -70,11 +56,9 @@ cleaninstall:
 	rm -rfv ${DESTDIR}${LIBDIR}
 	rm -rfv ${DESTDIR}${FILESDIR}
 	if [ -d ${DESTDIR} ]; then \
-		sudo rmdir ${DESTDIR}; \
+		rmdir ${DESTDIR}; \
 	fi
 .endif # } cleaninstall
 .endif # } install || cleaninstall
 
 .include <bsd.lib.mk>
-
-# vim: ts=8 sw=8 noet:
