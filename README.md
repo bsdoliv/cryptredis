@@ -1,7 +1,5 @@
-CryptRedis
+cryptredis
 ==========
-
-C++ connector for Redis with OpenBSD lightweight VM encrypting mechanism.
 
     ...
     // simple.cpp
@@ -21,33 +19,38 @@ C++ connector for Redis with OpenBSD lightweight VM encrypting mechanism.
     % redis-cli get foo
     "\\xcb32fb1d\\xc3fb804d\\x49795a76\\x4efe2dad"
 
-CryptRedis is a thin C++ connector which transparently encrypts/decrypts (AES)
-data while storing/retrieving it to/from Redis.  It is based in the same proven
-track-record kernel technology [1] from OpenBSD VM, developed by Niels Provos
-[2], thus we aim to offer robust crypto still minimum latency impact.
+This is a thin C++ connector, able to transparently encrypts/decrypts (AES)
+data while storing/retrieving it to/from Redis. It aims to offer some crypto,
+still minimum latency impact.
 
-CryptRedis has been inspired by MIT's project CryptDB [3].
+Inspired by MIT's project CryptDB [1].
 
-References
-----------
-[1] http://cvs.openbsd.org/papers/swapencrypt-slides.pdf
+[1] http://people.csail.mit.edu/nickolai/papers/raluca-cryptdb.pdf
 
-[2] http://cvs.openbsd.org/papers/swapencrypt.pdf
+[2] http://www.openbsd.org/papers/swapencrypt-slides.pdf
 
-[3] http://people.csail.mit.edu/nickolai/papers/raluca-cryptdb.pdf
+[3] http://www.openbsd.org/papers/swapencrypt.pdf
 
+Installation
+============
+	Bootstrap bmake
 
-Build
-=====
-    In Linux, be you have the following installed: ksh, g++, gcc
+	% tools/bmakebuild.sh
+	% alias bmake=~/.opt/bmake/bin/bmake
 
-    % tools/bmakebuild.sh
-    % alias bmake=~/.opt/bmake/bin/bmake
-    % bmake all runtests
+	OpenBSD
+	-------
+	% bmake all runtests
+
+	Linux
+	-----
+	dependencies: ksh, g++, gcc
+
+	% bmake all runtests
 
 Install
 =======
-    % DESTDIR=/opt bmake install
+    % DESTDIR=/opt sudo -E bmake install
 
 Usage
 =====
