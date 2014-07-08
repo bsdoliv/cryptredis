@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 1999 Niels Provos <provos@citi.umich.edu>
- * Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -153,5 +152,3 @@ cryptredis_key_prepare(const rediscrypt_key_t *key, int encrypt)
         cryptredis_dump_ctxt(&ctxt);
         return block;
 }
-
-/* vim: set ts=8 sw=8 et: */
