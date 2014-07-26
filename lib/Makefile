@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
+# Copyright (c) 2013, 2014 Andre de Oliveira <deoliveirambx@googlemail.com>
 # All rights reserved.
 #
 # Permission to use, copy, modify, and distribute this software for any purpose
@@ -18,18 +18,16 @@ LDSTATIC=	-static
 LIB=		cryptredis
 
 MKLINT=		no
-MKPROFILE=	no
-MKPICLIB=	no # disables build of lib*_pic.a
-MKPICINSTALL=	no # disables install of lib*_pic.a
-MKMAN=		no # disables manpages build
+NOPROFILE=	1
+NOPIC=		1
+NOMAN=		1
 
-.PATH:	${.CURDIR}/..
-SRCS=	cryptredisdb.cpp cryptredisresult.cpp bsd-rijndael.c bsd-crypt.c \
-	encode.c tools.c
+.PATH:		${.CURDIR}/..
+SRCS=		cryptredisdb.cpp cryptredisresult.cpp bsd-rijndael.c \
+		bsd-crypt.c encode.c tools.c
 
-.include "${.CURDIR}/../hiredis/hiredis.mk"
-.PATH:	${.CURDIR}/../hiredis
-SRCS+=	async.c dict.c hiredis.c net.c sds.c
+.PATH:		${.CURDIR}/../hiredis
+SRCS+=		async.c dict.c hiredis.c net.c sds.c
 
 # install instructions
 .ifmake install || cleaninstall # {
