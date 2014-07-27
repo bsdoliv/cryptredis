@@ -50,7 +50,6 @@ struct CryptRedisDbPrivate {
 
     bool            crypt_enabled;
     rediscrypt_key_t cryptkey[KEY_SIZE];
-    // crypt support buffers
     char            *deciph_buf;
     u_int32_t       *ciphrd_buf;
     size_t          bufsiz;
@@ -82,7 +81,7 @@ CryptRedisDbPrivate::setKey(const std::string &keystr)
                                              by 2 chars */
     char blkbuf[BLKSIZ];
     for (int i = 0; i < KEY_SIZE; i++) {
-        bzero(blkbuf, BLKSIZ);
+        explicit_bzero(blkbuf, sizeof(blkbuf));
         snprintf(blkbuf, BLKSIZ, "0x%s", p);
         *pk = (u_int32_t)strtol(blkbuf, (char **)NULL, 16);
         p +=  BLKSIZ;
@@ -103,8 +102,8 @@ CryptRedisDbPrivate::buildReply(::redisReply *redisrpl,
     char *str = redisrpl->str;
     size_t len = redisrpl->len;
     if (decrypt && crypt_enabled) {
-        bzero(deciph_buf, bufsiz);
-        bzero(ciphrd_buf, bufsiz);
+        explicit_bzero(deciph_buf, bufsiz);
+        explicit_bzero(ciphrd_buf, bufsiz);
         size_t declen = cryptredis_decode(str, ciphrd_buf);
         cryptredis_decrypt(cryptkey, ciphrd_buf, deciph_buf, declen);
         str = deciph_buf;
@@ -191,7 +190,8 @@ CryptRedisDb::CryptRedisDb() :
 
 CryptRedisDb::~CryptRedisDb()
 {
-    setCryptEnabled(false);
+    if (d->crypt_enabled)
+        setCryptEnabled(false);
     close();
     delete d;
 }  
@@ -240,8 +240,8 @@ CryptRedisDb::set(const std::string &key, const std::string &value,
 
     const char *data = value.data();
     if (d->crypt_enabled) {
-        bzero(d->deciph_buf, d->bufsiz);
-        bzero(d->ciphrd_buf, d->bufsiz);
+        explicit_bzero(d->deciph_buf, d->bufsiz);
+        explicit_bzero(d->ciphrd_buf, d->bufsiz);
         size_t buflen = cryptredis_align64(value.size());
         cryptredis_encrypt(d->cryptkey, value.data(), d->ciphrd_buf,
                            buflen);
@@ -336,39 +336,52 @@ void
 CryptRedisDb::setPort(int p)
 { d->port = p; }
 
-void
-CryptRedisDb::setCryptEnabled(bool enable)
+int
+CryptRedisDb::resetKey()
 {
-    memset(d->cryptkey, 0x0, sizeof(KEY_SIZE));
-    d->crypt_enabled = false;
-    if (!enable) {
-        if (d->ciphrd_buf)
-            free(d->ciphrd_buf);
-        if (d->deciph_buf)
-            free(d->deciph_buf);
-        d->ciphrd_buf = 0;
-        d->deciph_buf = 0;
-        return;
-    }
-
     char *keystr = getenv("CRYPTREDISKEY");
-    if (! keystr || (strlen(keystr) < (KEY_SIZE * sizeof(u_int32_t)))) {
+
+    if (keystr == NULL) {
+        d->last_error = "invalid key";
+        return (-1);
+    } else if ((strlen(keystr) < (KEY_SIZE * sizeof(u_int32_t)))) {
         d->last_error = "key is too small (less than 128bits)";
-        return;
+        return (-1);
     }
     d->setKey(keystr);
+}
+
+int
+CryptRedisDb::setCryptEnabled(bool enable)
+{
+    explicit_bzero(d->cryptkey, sizeof(d->cryptkey));
+    d->crypt_enabled = false;
+    if (!enable) {
+        if (d->ciphrd_buf) {
+            free(d->ciphrd_buf);
+            d->ciphrd_buf = NULL;
+        }
+        if (d->deciph_buf) {
+            free(d->deciph_buf);
+            d->deciph_buf = NULL;
+        }
+        return (0);
+    }
+
+    if (resetKey() == -1)
+        return (-1);
 
     d->bufsiz = CRYPTREDIS_MAXSIZBUF;
     d->ciphrd_buf = (u_int32_t *)calloc(1, d->bufsiz);
     d->deciph_buf = (char *)calloc(1, d->bufsiz);
 
-    if (! d->ciphrd_buf ||
-        ! d->deciph_buf) {
+    if (d->ciphrd_buf == NULL || d->deciph_buf == NULL) {
         d->last_error = "could not allocate crypto buffers";
-        return;
+        return (-1);
     }
 
     d->crypt_enabled = true;
+    return (0);
 }
 
 bool

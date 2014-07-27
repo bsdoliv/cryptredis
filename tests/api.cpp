@@ -21,6 +21,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pwd.h>
 
 #include <iostream>
 
@@ -30,9 +31,11 @@
 std::string
 random_nstr()
 {
-    char randbuf[6];
-    arc4random_buf(randbuf, 6);
-    return std::string(randbuf);
+    char randbuf[33];
+
+    strlcpy(randbuf, bcrypt_gensalt(6), sizeof(randbuf));
+
+    return (std::string(randbuf));
 }
 
 void
@@ -61,7 +64,8 @@ test_crypt()
     // test without key set, encrypt should fail
     redisdb.setCryptEnabled(true);
     assert(! redisdb.cryptEnabled());
-
+    assert(strncmp(redisdb.lastError().data(), "invalid key",
+		   redisdb.lastError().size()) == 0);
     CryptRedisResult result;
     std::string key = "foo" + random_nstr();
     std::string value = "bar" + random_nstr();

@@ -116,8 +116,9 @@ public:
     void close();
     bool connected();
 
-    void setCryptEnabled(bool);
+    int setCryptEnabled(bool);
     bool cryptEnabled();
+    int resetKey();
 
     // Redis commands
     void get(const std::string &k, CryptRedisResult *rpl);
