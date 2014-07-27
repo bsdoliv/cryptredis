@@ -49,4 +49,7 @@ run-perftests: .PHONY
 	cd ${.CURDIR}/rediscliset && ${.MAKE} run-perftests
 	cd ${.CURDIR}/rediscliget && ${.MAKE} run-perftests
 
+CLEANFILES+=	*.core
+
+.include <bsd.prog.mk>
 .include <bsd.subdir.mk>
