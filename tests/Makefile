@@ -13,21 +13,21 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR= cryptread
-SUBDIR+= cryptwrite
-SUBDIR+= cryptregress
-SUBDIR+= api
-SUBDIR+= rediscliget
-SUBDIR+= rediscliset
+SUBDIR=		cryptread
+SUBDIR+=	cryptwrite
+SUBDIR+=	cryptregress
+SUBDIR+=	api
+SUBDIR+=	rediscliget
+SUBDIR+=	rediscliset
 
-TESTS= api/apitest
-TESTS+= cryptregress/regress
-TESTS+= "cryptwrite/cryptwrite.sh 8"
-TESTS+= cryptread/cryptread.sh
-TESTS+= "cryptwrite/cryptwrite.sh 16"
-TESTS+= cryptread/cryptread.sh
-#TESTS+= "cryptwrite/cryptwrite.sh 8mb"
-TESTS+= cryptread/cryptread.sh
+TESTS=		api/apitest
+TESTS+=		cryptregress/regress
+TESTS+=		"cryptwrite/cryptwrite.sh 8"
+TESTS+=		cryptread/cryptread.sh
+TESTS+=		"cryptwrite/cryptwrite.sh 16"
+TESTS+=		cryptread/cryptread.sh
+#TESTS+=	"cryptwrite/cryptwrite.sh 8mb"
+TESTS+=		cryptread/cryptread.sh
 
 run: .PHONY
 	@for t in ${TESTS}; do \
@@ -50,5 +50,3 @@ run-perftests: .PHONY
 	cd ${.CURDIR}/rediscliget && ${.MAKE} run-perftests
 
 .include <bsd.subdir.mk>
-
-# vim: set ts=8 sw=8 noet:
