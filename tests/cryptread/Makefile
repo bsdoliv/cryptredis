@@ -16,10 +16,9 @@
 PROG=		read
 
 .PATH:		${.CURDIR}/..
-SRCS=		read.c
+SRCS=		read.c cryptwrap.c diskio.c
 
 .PATH:		${.CURDIR}/../..
-SRCS+=		encode.c tools.c cryptwrap.c diskio.c bsd-crypt.c \
-		bsd-rijndael.c
+SRCS+=		encode.c tools.c bsd-crypt.c bsd-rijndael.c
 
 .include <bsd.prog.mk>
