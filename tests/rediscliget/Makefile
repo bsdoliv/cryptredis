@@ -23,10 +23,8 @@ LDADD+=		-lstdc++
 LDADD+=		${.CURDIR}/../../lib/libcryptredis.a
 
 run: .PHONY
-	CRYPTREDISKEY=41d962ad5479795a10de0a369dea3b1e ${.CURDIR}/${PROG} \
+	env CRYPTREDISKEY=41d962ad5479795a10de0a369dea3b1e ${.CURDIR}/${PROG} \
 		      $${key}
 
 .include "${.CURDIR}/../perf.mk"
 .include <bsd.prog.mk>
-
-# vim: set ts=8 sw=8 noet:
