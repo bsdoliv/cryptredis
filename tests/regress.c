@@ -89,20 +89,24 @@ test_encrypt()
 void
 test_encode()
 {
+    char        *encoded_src = "YClYLQ5zCd78M2urDXiRcw==";
+    u_int32_t    buf[] = { 0x2d582960, 0xde09730e, 0xab6b33fc, 0x7391780d };
+    size_t       buflen = sizeof(buf);
+    char        *encoded_dst;
+
+    if ((encoded_dst = (char *)calloc(1, cryptredis_encsiz(buflen))) == NULL)
+        return;
+
     fprintf(stderr, "==> begin test encode\n");
-    char encdbufs[] = "\\x2d582960\\xde09730e\\xab6b33fc\\x7391780d";
-    u_int32_t encrybuf[] = { 
-            0x2d582960, 0xde09730e, 0xab6b33fc, 0x7391780d };
-    size_t buflen = sizeof(encrybuf);
-    char *encds = (char *)calloc(1, cryptredis_encsiz(buflen));
-    cryptredis_encode(encds, (u_int32_t *)encrybuf, buflen);
-    fprintf(stderr, "=> encdbufs: %s\n", encdbufs);
-    fprintf(stderr, "=> encds: %s\n", encds);
-    fprintf(stderr, "=> strlen(encdbufs): %ld\n", strlen(encdbufs));
-    fprintf(stderr, "=> strlen(encds): %ld\n", strlen(encds));
-    assert(strlen(encdbufs) == strlen(encds));
-    assert(strncmp(encdbufs, encds, buflen) == 0);
-    free(encds);
+    cryptredis_encode(encoded_dst, cryptredis_encsiz(buflen), buf, buflen);
+    fprintf(stderr, "=> encoded_src: %s\n", encoded_src);
+    fprintf(stderr, "=> encoded_dst: %s\n", encoded_dst);
+    fprintf(stderr, "=> strlen(encoded_src): %ld\n", strlen(encoded_src));
+    fprintf(stderr, "=> strlen(encoded_dst): %ld\n", strlen(encoded_dst));
+    assert(strlen(encoded_src) == strlen(encoded_dst));
+    assert(strncmp(encoded_src, encoded_dst, strlen(encoded_src)) == 0);
+    free(encoded_dst);
+    encoded_dst = NULL;
     fprintf(stderr, "==> end test encode\n");
 }
 
@@ -111,11 +115,10 @@ test_decode()
 {
     fprintf(stderr, "==> begin test decode\n");
     u_int32_t decdbuf[SIZBUF];
-    u_int32_t encrybuf[] = { 
-            0x2d582960, 0xde09730e, 0xab6b33fc, 0x7391780d };
-    char encds[] = "\\x2d582960\\xde09730e\\xab6b33fc\\x7391780d";
+    u_int32_t encrybuf[] = { 0x2d582960, 0xde09730e, 0xab6b33fc, 0x7391780d };
+    char encds[] = "YClYLQ5zCd78M2urDXiRcw==";
     size_t buflen = sizeof(encrybuf);
-    size_t len = cryptredis_decode(encds, decdbuf);
+    size_t len = cryptredis_decode(encds, decdbuf, SIZBUF);
     fprintf(stderr, "=> encrybuf: x%08x x%08x x%08x x%08x\n", 
             encrybuf[0], encrybuf[1], encrybuf[2], encrybuf[3]);
     fprintf(stderr, "=> decdbuf:  x%08x x%08x x%08x x%08x\n",

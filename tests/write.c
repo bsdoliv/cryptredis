@@ -87,7 +87,7 @@ main(int argc, char **argv)
 
     fprintf(stderr, "==> test encode\n");
     char *encbuf = (char *)calloc(1, cryptredis_encsiz(dstlen));
-    cryptredis_encode(encbuf, (u_int32_t *)dst, dstlen);
+    cryptredis_encode(encbuf, cryptredis_encsiz(dstlen), dst, dstlen);
     fprintf(stderr, "==> test diskstore\n");
     disk_store("/tmp/temp_store", encbuf, strlen(encbuf));
     fprintf(stderr, "=> written to store: %s\n", encbuf);
