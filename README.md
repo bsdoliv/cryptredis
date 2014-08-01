@@ -19,9 +19,8 @@ cryptredis
     % redis-cli get foo
     "\\xcb32fb1d\\xc3fb804d\\x49795a76\\x4efe2dad"
 
-This is a thin C++ connector, able to transparently encrypts/decrypts (AES)
-data while storing/retrieving it to/from Redis. It aims to offer some crypto,
-still minimum latency impact.
+cryptredis is an experimental redis-client library, able to transparently
+encrypts/decrypts (AES) data while storing/retrieving it to/from Redis.
 
 Inspired by MIT's project CryptDB [1].
 
@@ -31,8 +30,8 @@ Inspired by MIT's project CryptDB [1].
 
 [3] http://www.openbsd.org/papers/swapencrypt.pdf
 
-Installation
-============
+Build & Install
+=====   =======
 	Bootstrap bmake
 
 	% tools/bmakebuild.sh
@@ -48,13 +47,13 @@ Installation
 
 	% bmake all runtests
 
-Install
-=======
-    % DESTDIR=/opt sudo -E bmake install
+	Install
+	-------
+	% DESTDIR=/opt sudo -E bmake install
 
 Usage
 =====
-    Simply include cryptredis.h, link it statically to your application.
+    Include cryptredis.h, link it statically to your application.
     Check tools/Makefile.template for building/linking hints.
     The API is aimed to be simple and intuitive, find sample code on
     tests/api.cpp, tests/rediscliget.cpp and tests/rediscliset.cpp.
