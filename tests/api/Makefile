@@ -19,8 +19,7 @@ PROG=		apitest
 SRCS=		api.cpp
 
 .PATH:		${.CURDIR}/../..
-SRCS+=		encode.c tools.c bsd-crypt.c bsd-rijndael.c cryptredisdb.cpp \
-		cryptredisresult.cpp
+SRCS+=		encode.c tools.c bsd-crypt.c bsd-rijndael.c db.cpp result.cpp
 
 .PATH:		${.CURDIR}/../../hiredis
 SRCS+=		async.c dict.c hiredis.c net.c sds.c

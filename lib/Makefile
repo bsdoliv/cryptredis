@@ -23,8 +23,7 @@ NOPIC=		1
 NOMAN=		1
 
 .PATH:		${.CURDIR}/..
-SRCS=		cryptredisdb.cpp cryptredisresult.cpp bsd-rijndael.c \
-		bsd-crypt.c encode.c tools.c
+SRCS=		db.cpp result.cpp bsd-rijndael.c bsd-crypt.c encode.c tools.c
 
 .PATH:		${.CURDIR}/../hiredis
 SRCS+=		async.c dict.c hiredis.c net.c sds.c
