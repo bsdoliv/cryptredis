@@ -104,7 +104,7 @@ CryptRedisDbPrivate::buildReply(::redisReply *redisrpl,
     if (decrypt && crypt_enabled) {
         explicit_bzero(deciph_buf, bufsiz);
         explicit_bzero(ciphrd_buf, bufsiz);
-        size_t declen = cryptredis_decode(str, ciphrd_buf);
+        size_t declen = cryptredis_decode(str, ciphrd_buf, bufsiz);
         cryptredis_decrypt(cryptkey, ciphrd_buf, deciph_buf, declen);
         str = deciph_buf;
         len = strlen(str);
@@ -243,9 +243,9 @@ CryptRedisDb::set(const std::string &key, const std::string &value,
         explicit_bzero(d->deciph_buf, d->bufsiz);
         explicit_bzero(d->ciphrd_buf, d->bufsiz);
         size_t buflen = cryptredis_align64(value.size());
-        cryptredis_encrypt(d->cryptkey, value.data(), d->ciphrd_buf,
-                           buflen);
-        cryptredis_encode(d->deciph_buf, d->ciphrd_buf, buflen);
+        cryptredis_encrypt(d->cryptkey, value.data(), d->ciphrd_buf, buflen);
+        cryptredis_encode(d->deciph_buf, cryptredis_encsiz(buflen),
+                          d->ciphrd_buf, buflen);
         data = d->deciph_buf;
     }
 
