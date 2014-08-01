@@ -42,14 +42,18 @@ cryptredis_align64(u_int32_t n)
 void
 cryptredis_dumphex32(const char *label, void *buf, size_t len)
 {
-    fprintf(stderr, "%s (dumphex):\n", label);
-
     u_int32_t *p = (u_int32_t *)buf;
     int i = 0;
-    for (; i < (len / sizeof(u_int32_t)); p++, i++)
-        fprintf(stderr, " 0x%08x", *p);
 
-    fprintf(stderr, "\n");
+    fprintf(stderr, "%s (dumphex):\n", label);
+    for (; i < (len / sizeof(u_int32_t)); p++, i++) {
+        fprintf(stderr, " 0x%08x", *p);
+        if (((i + 1) % 4) == 0)
+            fprintf(stderr, "\n");
+    }
+
+    if (((i + 1) % 4) == 0)
+        fprintf(stderr, "\n");
 }
 
 /* vim: set ts=4 sw=4 et: */
