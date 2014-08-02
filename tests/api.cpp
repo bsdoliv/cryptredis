@@ -70,6 +70,7 @@ test_crypt()
     std::string key = "foo_" + random_nstr();
     std::string value = "bar_" + random_nstr();
 
+    std::cerr << "=> key " << key << std::endl;
     assert(CryptRedisResult::Ok == redisdb.set(key, value));
     redisdb.get(key, &result);
     std::cerr << "=> value " << value << std::endl;
@@ -85,7 +86,6 @@ test_crypt()
     redisdb.setCryptEnabled(true);
     assert(redisdb.cryptEnabled());
 
-    std::cerr << "=> key ok redisdb.get()" << std::endl;
     assert(CryptRedisResult::Ok == redisdb.set(key, value));
     redisdb.get(key, &result);
     std::cerr << "=> value " << value << std::endl;
@@ -107,9 +107,11 @@ test_crypt()
     std::cerr << "=> result " << result.toString() << std::endl;
     assert(CryptRedisResult::Ok == result.status());
     assert(result.toString() != value);
+#if 0
     size_t encsiz = cryptredis_encsiz(value.size());
     printf("result %d encsiz %d\n", result.toString().size(), encsiz);
-//    assert(result.toString().size() == encsiz);
+    assert(result.toString().size() == encsiz);
+#endif
 
     // cleanup
     assert(CryptRedisResult::Ok == redisdb.del(key));
