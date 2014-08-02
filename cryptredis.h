@@ -124,8 +124,6 @@ private:
     CryptRedisDbPrivate *d;
 };
 
-#define CRYPTREDIS_MAXSIZBUF (8192 * 1024)
-
 CRPTRDS_END_NAMESPACE
 
 namespace CRPTRDS_NAMESPACE {}

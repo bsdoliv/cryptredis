@@ -37,9 +37,6 @@ struct CryptRedisDbPrivate {
 
     bool            crypt_enabled;
     rediscrypt_key_t cryptkey[KEY_SIZE];
-    char            *deciph_buf;
-    u_int32_t       *ciphrd_buf;
-    size_t          bufsiz;
 
     void buildReply(::redisReply *, CryptRedisResult *,
                     bool decrypt = false);
@@ -77,34 +74,43 @@ CryptRedisDbPrivate::setKey(const std::string &keystr)
 }
 
 void 
-CryptRedisDbPrivate::buildReply(::redisReply *redisrpl,
-                                CryptRedisResult *rpl,
-                                bool decrypt)
+CryptRedisDbPrivate::buildReply(::redisReply *redisrpl, CryptRedisResult *rpl,
+    bool decrypt)
 {
-    if (! redisrpl) {
+    char        *bufs;
+    u_int32_t   *buf;
+    char        *str = redisrpl->str;
+    size_t       len = redisrpl->len, chlen;
+
+    if (!redisrpl) {
         rpl->invalidate();
         return;
     }
 
-    char *str = redisrpl->str;
-    size_t len = redisrpl->len;
     if (decrypt && crypt_enabled) {
-        explicit_bzero(deciph_buf, bufsiz);
-        explicit_bzero(ciphrd_buf, bufsiz);
-        size_t declen = cryptredis_decode(str, ciphrd_buf, bufsiz);
-        cryptredis_decrypt(cryptkey, ciphrd_buf, deciph_buf, declen);
-        str = deciph_buf;
+        len = cryptredis_encsiz(len);
+        if ((buf = (u_int32_t *)calloc(1, len)) == NULL)
+            return;
+
+        chlen = cryptredis_decode(str, buf, len);
+
+        if ((bufs = (char *)calloc(1, chlen)) == NULL)
+            return;
+
+        cryptredis_decrypt(cryptkey, buf, bufs, chlen);
+
+        str = bufs;
         len = strlen(str);
     }
 
     switch (redisrpl->type) {
     case REDIS_REPLY_ERROR:
         rpl->setStatus(CryptRedisResult::Fail);
-        if (0)
-            /* FALLTHROUGH */
+        /* FALLTHROUGH */
     case REDIS_REPLY_STATUS:
     case REDIS_REPLY_STRING:
-        rpl->setStatus(CryptRedisResult::Ok);
+        if (redisrpl->type != REDIS_REPLY_ERROR)
+            rpl->setStatus(CryptRedisResult::Ok);
         rpl->setData(str);
         break;
     case REDIS_REPLY_INTEGER:
@@ -120,6 +126,10 @@ CryptRedisDbPrivate::buildReply(::redisReply *redisrpl,
     rpl->setType(redisrpl->type);
 
     ::freeReplyObject(redisrpl);
+    if (decrypt && crypt_enabled) {
+        free(buf);
+        free(bufs);
+    }
     redisrpl = 0;
 }
 
@@ -220,32 +230,43 @@ CryptRedisDb::get(const std::string &key, CryptRedisResult *reply)
 
 int
 CryptRedisDb::set(const std::string &key, const std::string &value,
-                  CryptRedisResult *reply)
+    CryptRedisResult *reply)
 {
+    char        *bufs;
+    u_int32_t   *buf;
+    const char  *data = value.data();
+    size_t       chlen, buflen = value.size();
+
     if (! d->checkConnect(reply))
         return CryptRedisResult::Fail;
 
-    const char *data = value.data();
     if (d->crypt_enabled) {
-        explicit_bzero(d->deciph_buf, d->bufsiz);
-        explicit_bzero(d->ciphrd_buf, d->bufsiz);
-        size_t buflen = cryptredis_align64(value.size());
-        cryptredis_encrypt(d->cryptkey, value.data(), d->ciphrd_buf, buflen);
-        cryptredis_encode(d->deciph_buf, cryptredis_encsiz(buflen),
-                          d->ciphrd_buf, buflen);
-        data = d->deciph_buf;
+        buflen = cryptredis_align64(buflen);
+        chlen = cryptredis_encsiz(buflen);
+
+        if ((buf = (u_int32_t *)calloc(1, buflen)) == NULL)
+            return CryptRedisResult::Fail;
+
+        if ((bufs = (char *)calloc(1, chlen)) == NULL)
+            return CryptRedisResult::Fail;
+
+        cryptredis_encrypt(d->cryptkey, value.data(), buf, buflen);
+        cryptredis_encode(bufs, chlen, buf, buflen);
+        data = bufs;
     }
 
     ::redisReply *redisrpl = 0;
-    redisrpl = (::redisReply *)::redisCommand(d->redis_context,
-                                              "SET %s %s",
-                                              key.data(),
-                                              data);
+    redisrpl = (::redisReply *)::redisCommand(d->redis_context, "SET %s %s",
+        key.data(), data);
 
-    if (! reply) {
+    if (!reply) {
         CryptRedisResult res;
         d->buildReply(redisrpl, &res);
         return res.status();
+    }
+    if (d->crypt_enabled) {
+        free(buf);
+        free(bufs);
     }
 
     d->buildReply(redisrpl, reply);
@@ -343,29 +364,11 @@ CryptRedisDb::setCryptEnabled(bool enable)
 {
     explicit_bzero(d->cryptkey, sizeof(d->cryptkey));
     d->crypt_enabled = false;
-    if (!enable) {
-        if (d->ciphrd_buf) {
-            free(d->ciphrd_buf);
-            d->ciphrd_buf = NULL;
-        }
-        if (d->deciph_buf) {
-            free(d->deciph_buf);
-            d->deciph_buf = NULL;
-        }
+    if (!enable)
         return (0);
-    }
 
     if (resetKey() == -1)
         return (-1);
-
-    d->bufsiz = CRYPTREDIS_MAXSIZBUF;
-    d->ciphrd_buf = (u_int32_t *)calloc(1, d->bufsiz);
-    d->deciph_buf = (char *)calloc(1, d->bufsiz);
-
-    if (d->ciphrd_buf == NULL || d->deciph_buf == NULL) {
-        d->last_error = "could not allocate crypto buffers";
-        return (-1);
-    }
 
     d->crypt_enabled = true;
     return (0);
