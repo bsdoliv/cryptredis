@@ -26,7 +26,7 @@ TESTS+=		"cryptwrite/cryptwrite.sh 8"
 TESTS+=		cryptread/cryptread.sh
 TESTS+=		"cryptwrite/cryptwrite.sh 16"
 TESTS+=		cryptread/cryptread.sh
-#TESTS+=	"cryptwrite/cryptwrite.sh 8mb"
+TESTS+=		"cryptwrite/cryptwrite.sh 8kb"
 TESTS+=		cryptread/cryptread.sh
 
 run: .PHONY

@@ -47,10 +47,10 @@ test_16()
 echo "test hello world" | ${cmd}
 }
 
-# len 16*1024*512 (8MB)
-test_8mb()
+# len 16*512 (8KB)
+test_8kb()
 {
-( i=0; while [ $i -lt 512024 ]; do \
+( i=0; while [ $i -lt 512 ]; do \
         printf "test hello world "; \
         let "i = i + 1"; \
 done; echo ) | ${cmd}
