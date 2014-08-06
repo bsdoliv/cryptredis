@@ -28,11 +28,11 @@ const int CryptRedisResult::String  = REDIS_REPLY_STRING;
 const int CryptRedisResult::Array   = REDIS_REPLY_ARRAY;
 
 struct CryptRedisResultPrivate {
-	string data_s;
-	long long data_i;
-	int type;
-	int size;
-	int status;
+	string		data_s;
+	long long	data_i;
+	int		type;
+	int		size;
+	int		status;
 };
 
 CryptRedisResult::CryptRedisResult() :
@@ -55,7 +55,7 @@ CryptRedisResult::setData(const string &data)
 string
 CryptRedisResult::toString() const
 {
-	return d->data_s;
+	return (d->data_s);
 }
 
 void
@@ -67,7 +67,7 @@ CryptRedisResult::setData(long long data)
 int
 CryptRedisResult::toInteger() const
 {
-	return d->data_i;
+	return (d->data_i);
 }
 
 void
@@ -79,7 +79,7 @@ CryptRedisResult::setType(int t)
 int
 CryptRedisResult::type() const
 {
-	return d->type;
+	return (d->type);
 }
 
 void
@@ -91,7 +91,7 @@ CryptRedisResult::setSize(int s)
 int
 CryptRedisResult::size() const
 {
-	return d->size;
+	return (d->size);
 }
 
 void
@@ -113,13 +113,13 @@ CryptRedisResult::setStatus(int s)
 int
 CryptRedisResult::status()
 {
-	return d->status;
+	return (d->status);
 }
 
 string
 CryptRedisResult::errorString()
 {
-	return d->data_s;
+	return (d->data_s);
 }
 
 string
@@ -127,11 +127,11 @@ CryptRedisResult::statusString()
 {
 	switch (d->status) {
 	case CryptRedisResult::Ok:
-		return "CryptRedisResult::Ok";
+		return ("CryptRedisResult::Ok");
 	case CryptRedisResult::Fail:
-		return "CryptRedisResult::Fail";
+		return ("CryptRedisResult::Fail");
 	default:
-		return "No such status";
+		return ("No such status");
 	}
 }
 

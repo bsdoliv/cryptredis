@@ -112,9 +112,9 @@ public:
 	void get(const string &k, CryptRedisResult *rpl);
 	CryptRedisResult get(const string &k);
 	void mget(const vector<string> &keys,
-			  CryptRedisResultSet *rpl) { return; };
+	    CryptRedisResultSet *rpl) { return; };
 	int set(const string &k, const string &v,
-			 CryptRedisResult *rpl = 0);
+	    CryptRedisResult *rpl = 0);
 	int del(const string &k, CryptRedisResult *rpl = 0);
 	int exists(const string &k, CryptRedisResult *rpl = 0);
 	int ping(CryptRedisResult *rpl = 0);
