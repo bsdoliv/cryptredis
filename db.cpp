@@ -80,9 +80,9 @@ CryptRedisDbPrivate::buildReply(redisReply *redisrpl, CryptRedisResult *rpl,
 	bool decrypt)
 {
 	char		*bufs;
-	u_int32_t   *buf;
+	u_int32_t	*buf;
 	char		*str = redisrpl->str;
-	size_t	   len = redisrpl->len, chlen;
+	size_t		 len = redisrpl->len, chlen;
 
 	if (!redisrpl) {
 		rpl->invalidate();
@@ -139,19 +139,19 @@ bool
 CryptRedisDbPrivate::connect(const string &h, int p)
 {
 	if (redis_connected)
-		return redis_connected;
+		return (redis_connected);
 
 	redis_connected = false;
 	redis_context = redisConnect(h.data(), p);
 	
-	if (! redis_context)
-		return false;
+	if (!redis_context)
+		return (false);
 
 	if (redis_context && redis_context->err) {
 		last_error = redis_context->errstr;
 		redisFree(redis_context);
 		redis_context = 0;
-		return false;
+		return (false);
 	}
 
 	return (redis_connected = true);
@@ -164,13 +164,13 @@ CryptRedisDb::open(const string &h, int p)
 		setHost(h);
 		setPort(p);
 	}
-	return d->connect(d->host, d->port);
+	return (d->connect(d->host, d->port));
 }
 
 void 
 CryptRedisDb::close()
 {
-	if (d->redis_context != 0) {
+	if (d->redis_context) {
 		redisFree(d->redis_context);
 		d->redis_context = 0;
 	}
@@ -185,6 +185,7 @@ CryptRedisDb::CryptRedisDb() :
 	d->port = -1;
 	d->redis_connected = false;
 	d->redis_context = 0;
+	explicit_bzero(d->cryptkey, sizeof(d->cryptkey));
 }
 
 CryptRedisDb::~CryptRedisDb()
@@ -192,36 +193,39 @@ CryptRedisDb::~CryptRedisDb()
 	if (d->crypt_enabled)
 		setCryptEnabled(false);
 	close();
+	explicit_bzero(d->cryptkey, sizeof(d->cryptkey));
 	delete d;
 }
 
 bool CryptRedisDb::connected()
 {
-	return d->redis_connected;
+	return (d->redis_connected);
 }
 
 CryptRedisResult
 CryptRedisDb::get(const string &key)
 {
-	CryptRedisResult res;
-	if (! d->checkConnect(&res))
-		return res;
+	CryptRedisResult	 res;
+	redisReply		*redisrpl= 0;
 
-	redisReply *redisrpl= 0;
+	if (!d->checkConnect(&res))
+		return (res);
+
 	redisrpl = (redisReply *)redisCommand(d->redis_context, "GET %s",
 	    key.c_str());
 
 	d->buildReply(redisrpl, &res, true);
-	return res;
+	return (res);
 }
 
 void 
 CryptRedisDb::get(const string &key, CryptRedisResult *reply)
 {
-	if (! d->checkConnect(reply))
+	redisReply	*redisrpl= 0;
+
+	if (!d->checkConnect(reply))
 		return;
 
-	redisReply *redisrpl= 0;
 	redisrpl = (redisReply *)redisCommand(d->redis_context, "GET %s",
 	    key.c_str());
 
@@ -271,70 +275,74 @@ CryptRedisDb::set(const string &key, const string &value,
 	}
 
 	d->buildReply(redisrpl, reply);
-	return reply->status();
+	return (reply->status());
 }
 
 int
 CryptRedisDb::exists(const string &key, CryptRedisResult *reply)
 {
-	if (! d->checkConnect(reply))
+	redisReply	*redisrpl = 0;
+
+	if (!d->checkConnect(reply))
 		return CryptRedisResult::Fail;
 
-	redisReply *redisrpl = 0;
 	redisrpl = (redisReply *)redisCommand(d->redis_context, "EXISTS %s",
 	    key.data());
-	if (! reply) {
+
+	if (!reply) {
 		CryptRedisResult res;
 		d->buildReply(redisrpl, &res);
 		return res.status();
 	}
 
 	d->buildReply(redisrpl, reply);
-	return reply->status();
+	return (reply->status());
 }
 
 int
 CryptRedisDb::ping(CryptRedisResult *reply)
 {
-	if (! d->checkConnect(reply))
-		return CryptRedisResult::Fail;
+	redisReply	*redisrpl = 0;
 
-	redisReply *redisrpl = 0;
+	if (!d->checkConnect(reply))
+		return (CryptRedisResult::Fail);
+
 	redisrpl = (redisReply *)redisCommand(d->redis_context, "PING");
 
-	if (! reply) {
+	if (!reply) {
 		CryptRedisResult res;
 		d->buildReply(redisrpl, &res);
-		return res.status();
+		return (res.status());
 	}
 
 	d->buildReply(redisrpl, reply);
-	return reply->status();
+	return (reply->status());
 }
 
 int
 CryptRedisDb::del(const string &key, CryptRedisResult *reply)
 {
-	if (! d->checkConnect(reply))
-		return CryptRedisResult::Fail;
+	redisReply	*redisrpl = 0;
+	if (!d->checkConnect(reply))
+		return (CryptRedisResult::Fail);
 
-	redisReply *redisrpl = 0;
 	redisrpl = (redisReply *)redisCommand(d->redis_context, "DEL %s",
 	    key.data());
-	if (! reply) {
+
+	if (!reply) {
 		CryptRedisResult res;
 		d->buildReply(redisrpl, &res);
-		return res.status();
+		return (res.status());
 	}
 
 	d->buildReply(redisrpl, reply);
-	return reply->status();
+	return (reply->status());
 }
 
 string
 CryptRedisDb::lastError()
 {
-	return d->last_error;
+	return (d->last_error);
 }
 
 void
@@ -367,8 +375,9 @@ CryptRedisDb::resetKey()
 int
 CryptRedisDb::setCryptEnabled(bool enable)
 {
-	explicit_bzero(d->cryptkey, sizeof(d->cryptkey));
 	d->crypt_enabled = false;
+	explicit_bzero(d->cryptkey, sizeof(d->cryptkey));
+
 	if (!enable)
 		return (0);
 
@@ -382,7 +391,7 @@ CryptRedisDb::setCryptEnabled(bool enable)
 bool
 CryptRedisDb::cryptEnabled()
 {
-	return d->crypt_enabled;
+	return (d->crypt_enabled);
 }
 
 CRPTRDS_END_NAMESPACE
