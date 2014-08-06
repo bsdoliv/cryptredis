@@ -24,36 +24,34 @@
 size_t
 cryptredis_align64(u_int32_t n)
 {
-    if ((n % 128) == 0)
-        return n;
+	if ((n % 128) == 0)
+		return (n);
 
-    u_int32_t v = n;
-    v--;
-    v |= v >> 1;
-    v |= v >> 2;
-    v |= v >> 4;
-    v |= v >> 8;
-    v |= v >> 16;
-    v++;
+	u_int32_t v = n;
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v++;
 
-    return (MAX(v, 16));
+	return (MAX(v, 16));
 }
 
 void
 cryptredis_dumphex32(const char *label, void *buf, size_t len)
 {
-    u_int32_t *p = (u_int32_t *)buf;
-    int i = 0;
+	u_int32_t	*p = (u_int32_t *)buf;
+	int		 i = 0;
 
-    fprintf(stderr, "%s (dumphex):\n", label);
-    for (; i < (len / sizeof(u_int32_t)); p++, i++) {
-        fprintf(stderr, " 0x%08x", *p);
-        if (((i + 1) % 4) == 0)
-            fprintf(stderr, "\n");
-    }
+	fprintf(stderr, "%s (dumphex):\n", label);
+	for (; i < (len / sizeof(u_int32_t)); p++, i++) {
+		fprintf(stderr, " 0x%08x", *p);
+		if (((i + 1) % 4) == 0)
+			fprintf(stderr, "\n");
+	}
 
-    if (((i + 1) % 4) == 0)
-        fprintf(stderr, "\n");
+	if (((i + 1) % 4) == 0)
+		fprintf(stderr, "\n");
 }
-
-/* vim: set ts=4 sw=4 et: */

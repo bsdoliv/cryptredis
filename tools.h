@@ -32,8 +32,8 @@
 
 CEXT_BEGIN
 
-size_t cryptredis_align64(u_int32_t n);
-void cryptredis_dumphex32(const char *label, void *buf, size_t len);
+size_t	cryptredis_align64(u_int32_t);
+void	cryptredis_dumphex32(const char *, void *, size_t);
 
 CEXT_END;
 
