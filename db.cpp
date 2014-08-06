@@ -48,26 +48,28 @@ struct CryptRedisDbPrivate {
 bool
 CryptRedisDbPrivate::checkConnect(CryptRedisResult *reply)
 {
-	if (! connect(host, port)) {
+	if (!connect(host, port)) {
 		if (reply)
 			reply->invalidate();
-		return false;
+		return (false);
 	}
-	return true;
+	return (true);
 }
 
 void 
 CryptRedisDbPrivate::setKey(const string &keystr)
 {
-	const char *p = keystr.data();
-	u_int32_t *pk = cryptkey;
+	const char	*p = keystr.data();
+	u_int32_t	*pk = cryptkey;
+	int		 i;
 /* each byte represented by 2 chars */
 #define BLKSIZ (sizeof(u_int32_t) * 2)
-	char blkbuf[BLKSIZ];
-	for (int i = 0; i < KEY_SIZE; i++) {
+	char		 blkbuf[BLKSIZ];
+
+	for (i = 0; i < KEY_SIZE; i++) {
 		explicit_bzero(blkbuf, sizeof(blkbuf));
-		snprintf(blkbuf, BLKSIZ, "0x%s", p);
-		*pk = (u_int32_t)strtol(blkbuf, (char **)NULL, 16);
+		snprintf(blkbuf, sizeof(blkbuf), "0x%s", p);
+		pk[i] = (u_int32_t)strtol(blkbuf, (char **)NULL, 16);
 		p +=  BLKSIZ;
 	}
 #undef BLKSIZ
