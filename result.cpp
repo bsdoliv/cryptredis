@@ -28,7 +28,7 @@ const int CryptRedisResult::String  = REDIS_REPLY_STRING;
 const int CryptRedisResult::Array   = REDIS_REPLY_ARRAY;
 
 struct CryptRedisResultPrivate {
-    std::string data_s;
+    string data_s;
     long long data_i;
     int type;
     int size;
@@ -45,10 +45,10 @@ CryptRedisResult::~CryptRedisResult()
 { delete d; }
 
 void 
-CryptRedisResult::setData(const std::string &data) 
+CryptRedisResult::setData(const string &data) 
 { d->data_s = data; }
 
-std::string 
+string 
 CryptRedisResult::toString() const 
 { return d->data_s; }
 
@@ -94,11 +94,11 @@ int
 CryptRedisResult::status()
 { return d->status; }
 
-std::string
+string
 CryptRedisResult::errorString()
 { return d->data_s; }
 
-std::string
+string
 CryptRedisResult::statusString()
 {
     switch (d->status) {

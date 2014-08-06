@@ -30,9 +30,9 @@ CRPTRDS_BEGIN_NAMESPACE
 struct CryptRedisDbPrivate {
     ::redisContext  *redis_context;
     bool            redis_connected;
-    std::string     last_error;
+    string     last_error;
 
-    std::string     host;
+    string     host;
     int             port;
 
     bool            crypt_enabled;
@@ -41,8 +41,8 @@ struct CryptRedisDbPrivate {
     void buildReply(::redisReply *, CryptRedisResult *,
                     bool decrypt = false);
     bool checkConnect(CryptRedisResult *reply);
-    bool connect(const std::string &h, int p);
-    void setKey(const std::string &keystr);
+    bool connect(const string &h, int p);
+    void setKey(const string &keystr);
 };
 
 bool
@@ -57,7 +57,7 @@ CryptRedisDbPrivate::checkConnect(CryptRedisResult *reply)
 }
 
 void 
-CryptRedisDbPrivate::setKey(const std::string &keystr)
+CryptRedisDbPrivate::setKey(const string &keystr)
 {
     const char *p = keystr.data();
     u_int32_t *pk = cryptkey;
@@ -134,7 +134,7 @@ CryptRedisDbPrivate::buildReply(::redisReply *redisrpl, CryptRedisResult *rpl,
 }
 
 bool 
-CryptRedisDbPrivate::connect(const std::string &h, int p)
+CryptRedisDbPrivate::connect(const string &h, int p)
 {
     if (redis_connected)
         return redis_connected;
@@ -156,7 +156,7 @@ CryptRedisDbPrivate::connect(const std::string &h, int p)
 }
 
 bool
-CryptRedisDb::open(const std::string &h, int p)
+CryptRedisDb::open(const string &h, int p)
 {
     if (! h.empty() && p > 0) {
         setHost(h);
@@ -199,7 +199,7 @@ bool CryptRedisDb::connected()
 }
 
 CryptRedisResult
-CryptRedisDb::get(const std::string &key)
+CryptRedisDb::get(const string &key)
 {
     CryptRedisResult res;
     if (! d->checkConnect(&res))
@@ -215,7 +215,7 @@ CryptRedisDb::get(const std::string &key)
 }
 
 void 
-CryptRedisDb::get(const std::string &key, CryptRedisResult *reply)
+CryptRedisDb::get(const string &key, CryptRedisResult *reply)
 {
     if (! d->checkConnect(reply))
         return;
@@ -229,7 +229,7 @@ CryptRedisDb::get(const std::string &key, CryptRedisResult *reply)
 }
 
 int
-CryptRedisDb::set(const std::string &key, const std::string &value,
+CryptRedisDb::set(const string &key, const string &value,
     CryptRedisResult *reply)
 {
     char        *bufs;
@@ -274,7 +274,7 @@ CryptRedisDb::set(const std::string &key, const std::string &value,
 }
 
 int
-CryptRedisDb::exists(const std::string &key, CryptRedisResult *reply)
+CryptRedisDb::exists(const string &key, CryptRedisResult *reply)
 {
     if (! d->checkConnect(reply))
         return CryptRedisResult::Fail;
@@ -313,7 +313,7 @@ CryptRedisDb::ping(CryptRedisResult *reply)
 }
 
 int
-CryptRedisDb::del(const std::string &key, CryptRedisResult *reply)
+CryptRedisDb::del(const string &key, CryptRedisResult *reply)
 {
     if (! d->checkConnect(reply))
         return CryptRedisResult::Fail;
@@ -332,12 +332,12 @@ CryptRedisDb::del(const std::string &key, CryptRedisResult *reply)
     return reply->status();
 }
 
-std::string
+string
 CryptRedisDb::lastError()
 { return d->last_error; }
 
 void
-CryptRedisDb::setHost(const std::string &h)
+CryptRedisDb::setHost(const string &h)
 { d->host = h; }
 
 void

@@ -22,10 +22,12 @@
 #include <list>
 #include <vector>
 
-#define CRPTRDS_NAMESPACE CrptRds
-#define CRPTRDS_USE_NAMESPACE using namespace ::CRPTRDS_NAMESPACE;
+#define CRPTRDS_NAMESPACE       CrptRds
+#define CRPTRDS_USE_NAMESPACE   using namespace ::CRPTRDS_NAMESPACE;
 #define CRPTRDS_BEGIN_NAMESPACE namespace CRPTRDS_NAMESPACE {
-#define CRPTRDS_END_NAMESPACE }
+#define CRPTRDS_END_NAMESPACE   }
+
+using namespace std;
 
 CRPTRDS_BEGIN_NAMESPACE
 
@@ -52,8 +54,8 @@ public:
 
     void setStatus(int d);
     int status();
-    std::string statusString();
-    static inline std::string statusString(int s)
+    string statusString();
+    static inline string statusString(int s)
     {
         CryptRedisResult r;
         r.setStatus(s);
@@ -61,12 +63,12 @@ public:
     };
 
     int error();
-    std::string errorString();
+    string errorString();
 
-    void setData(const std::string &d);
+    void setData(const string &d);
     void setData(long long d);
 
-    std::string toString() const;
+    string toString() const;
     int toInteger() const;
 
     void setType(int t);
@@ -81,10 +83,10 @@ private:
     CryptRedisResultPrivate *d;
 };
 
-class CryptRedisResultSet : public std::list<CryptRedisResult> 
+class CryptRedisResultSet : public list<CryptRedisResult>
 {
 public:
-    std::string statusString() { };
+    string statusString() { };
 };
 
 class CryptRedisDbPrivate;
@@ -94,12 +96,12 @@ public:
     explicit CryptRedisDb();
     virtual ~CryptRedisDb();
 
-    void setHost(const std::string &h);
-    std::string host();
+    void setHost(const string &h);
+    string host();
     void setPort(int p);
     int port();
 
-    bool open(const std::string &h = std::string(), int p = -1);
+    bool open(const string &h = string(), int p = -1);
     void close();
     bool connected();
 
@@ -108,17 +110,17 @@ public:
     int resetKey();
 
     // Redis commands
-    void get(const std::string &k, CryptRedisResult *rpl);
-    CryptRedisResult get(const std::string &k);
-    void mget(const std::vector<std::string> &keys,
+    void get(const string &k, CryptRedisResult *rpl);
+    CryptRedisResult get(const string &k);
+    void mget(const vector<string> &keys,
               CryptRedisResultSet *rpl) { return; };
-    int set(const std::string &k, const std::string &v,
+    int set(const string &k, const string &v,
              CryptRedisResult *rpl = 0);
-    int del(const std::string &k, CryptRedisResult *rpl = 0);
-    int exists(const std::string &k, CryptRedisResult *rpl = 0);
+    int del(const string &k, CryptRedisResult *rpl = 0);
+    int exists(const string &k, CryptRedisResult *rpl = 0);
     int ping(CryptRedisResult *rpl = 0);
 
-    std::string lastError();
+    string lastError();
 
 private:
     CryptRedisDbPrivate *d;
@@ -130,4 +132,3 @@ namespace CRPTRDS_NAMESPACE {}
 CRPTRDS_USE_NAMESPACE
 
 #endif //! CRYPTREDIS_H
-// vim: set ts=4 sw=4 et:
