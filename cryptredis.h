@@ -35,95 +35,94 @@ class CryptRedisResultPrivate;
 class CryptRedisResult
 {
 public:
-    // hiredis mimic type codes
-    static const int Status;
-    static const int Error;
-    static const int Integer;
-    static const int Nil;
-    static const int String;
-    static const int Array;
+	// hiredis mimic type codes
+	static const int Status;
+	static const int Error;
+	static const int Integer;
+	static const int Nil;
+	static const int String;
+	static const int Array;
 
-    // status codes
-    enum {
-        Ok = 0,
-        Fail = -1 
-    };
+	// status codes
+	enum {
+		Ok	= 0,
+		Fail	= -1
+	};
 
-    explicit CryptRedisResult();
-    virtual ~CryptRedisResult();
+	explicit CryptRedisResult();
+	virtual ~CryptRedisResult();
 
-    void setStatus(int d);
-    int status();
-    string statusString();
-    static inline string statusString(int s)
-    {
-        CryptRedisResult r;
-        r.setStatus(s);
-        return r.statusString();
-    };
+	void setStatus(int d);
+	int status();
+	string statusString();
+	static inline string statusString(int s) {
+		CryptRedisResult r;
+		r.setStatus(s);
+		return r.statusString();
+	};
 
-    int error();
-    string errorString();
+	int error();
+	string errorString();
 
-    void setData(const string &d);
-    void setData(long long d);
+	void setData(const string &d);
+	void setData(long long d);
 
-    string toString() const;
-    int toInteger() const;
+	string toString() const;
+	int toInteger() const;
 
-    void setType(int t);
-    int type() const;
+	void setType(int t);
+	int type() const;
 
-    void setSize(int s);
-    int size() const;
-    void invalidate() {  clear(); };
-    void clear();
+	void setSize(int s);
+	int size() const;
+	void invalidate() {  clear(); };
+	void clear();
 
 private:
-    CryptRedisResultPrivate *d;
+	CryptRedisResultPrivate *d;
 };
 
 class CryptRedisResultSet : public list<CryptRedisResult>
 {
 public:
-    string statusString() { };
+	string statusString() { };
 };
 
 class CryptRedisDbPrivate;
 class CryptRedisDb
 {
 public:
-    explicit CryptRedisDb();
-    virtual ~CryptRedisDb();
+	explicit CryptRedisDb();
+	virtual ~CryptRedisDb();
 
-    void setHost(const string &h);
-    string host();
-    void setPort(int p);
-    int port();
+	void setHost(const string &h);
+	string host();
+	void setPort(int p);
+	int port();
 
-    bool open(const string &h = string(), int p = -1);
-    void close();
-    bool connected();
+	bool open(const string &h = string(), int p = -1);
+	void close();
+	bool connected();
 
-    int setCryptEnabled(bool);
-    bool cryptEnabled();
-    int resetKey();
+	int setCryptEnabled(bool);
+	bool cryptEnabled();
+	int resetKey();
 
-    // Redis commands
-    void get(const string &k, CryptRedisResult *rpl);
-    CryptRedisResult get(const string &k);
-    void mget(const vector<string> &keys,
-              CryptRedisResultSet *rpl) { return; };
-    int set(const string &k, const string &v,
-             CryptRedisResult *rpl = 0);
-    int del(const string &k, CryptRedisResult *rpl = 0);
-    int exists(const string &k, CryptRedisResult *rpl = 0);
-    int ping(CryptRedisResult *rpl = 0);
+	// Redis commands
+	void get(const string &k, CryptRedisResult *rpl);
+	CryptRedisResult get(const string &k);
+	void mget(const vector<string> &keys,
+			  CryptRedisResultSet *rpl) { return; };
+	int set(const string &k, const string &v,
+			 CryptRedisResult *rpl = 0);
+	int del(const string &k, CryptRedisResult *rpl = 0);
+	int exists(const string &k, CryptRedisResult *rpl = 0);
+	int ping(CryptRedisResult *rpl = 0);
 
-    string lastError();
+	string lastError();
 
 private:
-    CryptRedisDbPrivate *d;
+	CryptRedisDbPrivate *d;
 };
 
 CRPTRDS_END_NAMESPACE

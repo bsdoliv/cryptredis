@@ -28,89 +28,111 @@ const int CryptRedisResult::String  = REDIS_REPLY_STRING;
 const int CryptRedisResult::Array   = REDIS_REPLY_ARRAY;
 
 struct CryptRedisResultPrivate {
-    string data_s;
-    long long data_i;
-    int type;
-    int size;
-    int status;
+	string data_s;
+	long long data_i;
+	int type;
+	int size;
+	int status;
 };
 
 CryptRedisResult::CryptRedisResult() :
-    d(new CryptRedisResultPrivate) 
-{ 
-    clear();
+	d(new CryptRedisResultPrivate)
+{
+	clear();
 }
 
 CryptRedisResult::~CryptRedisResult()
-{ delete d; }
+{
+	delete d;
+}
 
-void 
-CryptRedisResult::setData(const string &data) 
-{ d->data_s = data; }
+void
+CryptRedisResult::setData(const string &data)
+{
+	d->data_s = data;
+}
 
-string 
-CryptRedisResult::toString() const 
-{ return d->data_s; }
+string
+CryptRedisResult::toString() const
+{
+	return d->data_s;
+}
 
-void 
-CryptRedisResult::setData(long long data) 
-{ d->data_i = data; }
+void
+CryptRedisResult::setData(long long data)
+{
+	d->data_i = data;
+}
 
-int 
-CryptRedisResult::toInteger() const 
-{ return d->data_i; }
+int
+CryptRedisResult::toInteger() const
+{
+	return d->data_i;
+}
 
-void 
-CryptRedisResult::setType(int t) 
-{ d->type = t; }
+void
+CryptRedisResult::setType(int t)
+{
+	d->type = t;
+}
 
-int 
-CryptRedisResult::type() const 
-{ return d->type; }
+int
+CryptRedisResult::type() const
+{
+	return d->type;
+}
 
-void 
-CryptRedisResult::setSize(int s) 
-{ d->size = s; }
+void
+CryptRedisResult::setSize(int s)
+{
+	d->size = s;
+}
 
-int 
-CryptRedisResult::size() const 
-{ return d->size; }
+int
+CryptRedisResult::size() const
+{
+	return d->size;
+}
 
-void 
+void
 CryptRedisResult::clear()
 {
-    d->size = 0;
-    d->data_i = -1;
-    d->type = Nil;
-    d->data_s.clear();
-    d->status = CryptRedisResult::Fail;
+	d->size = 0;
+	d->data_i = -1;
+	d->type = Nil;
+	d->data_s.clear();
+	d->status = CryptRedisResult::Fail;
 }
 
 void
 CryptRedisResult::setStatus(int s)
-{ d->status = s; }
+{
+	d->status = s;
+}
 
 int
 CryptRedisResult::status()
-{ return d->status; }
+{
+	return d->status;
+}
 
 string
 CryptRedisResult::errorString()
-{ return d->data_s; }
+{
+	return d->data_s;
+}
 
 string
 CryptRedisResult::statusString()
 {
-    switch (d->status) {
-    case CryptRedisResult::Ok:
-        return "CryptRedisResult::Ok";
-    case CryptRedisResult::Fail: 
-        return "CryptRedisResult::Fail";
-    default:
-        return "No such status";
-    }
+	switch (d->status) {
+	case CryptRedisResult::Ok:
+		return "CryptRedisResult::Ok";
+	case CryptRedisResult::Fail:
+		return "CryptRedisResult::Fail";
+	default:
+		return "No such status";
+	}
 }
 
 CRPTRDS_END_NAMESPACE
-
-// vim: set ts=4 sw=4 et ai:
