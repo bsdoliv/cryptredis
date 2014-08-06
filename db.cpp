@@ -28,7 +28,7 @@
 CRPTRDS_BEGIN_NAMESPACE
 
 struct CryptRedisDbPrivate {
-	::redisContext		*redis_context;
+	redisContext		*redis_context;
 	bool			 redis_connected;
 	string			 last_error;
 
@@ -38,7 +38,7 @@ struct CryptRedisDbPrivate {
 	bool			 crypt_enabled;
 	rediscrypt_key_t	 cryptkey[KEY_SIZE];
 
-	void buildReply(::redisReply *, CryptRedisResult *,
+	void buildReply(redisReply *, CryptRedisResult *,
 	    bool decrypt = false);
 	bool checkConnect(CryptRedisResult *reply);
 	bool connect(const string &h, int p);
@@ -74,7 +74,7 @@ CryptRedisDbPrivate::setKey(const string &keystr)
 }
 
 void 
-CryptRedisDbPrivate::buildReply(::redisReply *redisrpl, CryptRedisResult *rpl,
+CryptRedisDbPrivate::buildReply(redisReply *redisrpl, CryptRedisResult *rpl,
 	bool decrypt)
 {
 	char		*bufs;
@@ -125,7 +125,7 @@ CryptRedisDbPrivate::buildReply(::redisReply *redisrpl, CryptRedisResult *rpl,
 	rpl->setSize(len);
 	rpl->setType(redisrpl->type);
 
-	::freeReplyObject(redisrpl);
+	freeReplyObject(redisrpl);
 	if (decrypt && crypt_enabled) {
 		free(buf);
 		free(bufs);
@@ -140,14 +140,14 @@ CryptRedisDbPrivate::connect(const string &h, int p)
 		return redis_connected;
 
 	redis_connected = false;
-	redis_context = ::redisConnect(h.data(), p);
+	redis_context = redisConnect(h.data(), p);
 	
 	if (! redis_context)
 		return false;
 
 	if (redis_context && redis_context->err) {
 		last_error = redis_context->errstr;
-		::redisFree(redis_context);
+		redisFree(redis_context);
 		redis_context = 0;
 		return false;
 	}
@@ -169,7 +169,7 @@ void
 CryptRedisDb::close()
 {
 	if (d->redis_context != 0) {
-		::redisFree(d->redis_context);
+		redisFree(d->redis_context);
 		d->redis_context = 0;
 	}
 
@@ -205,8 +205,8 @@ CryptRedisDb::get(const string &key)
 	if (! d->checkConnect(&res))
 		return res;
 
-	::redisReply *redisrpl= 0;
-	redisrpl = (::redisReply *)::redisCommand(d->redis_context, "GET %s",
+	redisReply *redisrpl= 0;
+	redisrpl = (redisReply *)redisCommand(d->redis_context, "GET %s",
 	    key.c_str());
 
 	d->buildReply(redisrpl, &res, true);
@@ -219,8 +219,8 @@ CryptRedisDb::get(const string &key, CryptRedisResult *reply)
 	if (! d->checkConnect(reply))
 		return;
 
-	::redisReply *redisrpl= 0;
-	redisrpl = (::redisReply *)::redisCommand(d->redis_context, "GET %s",
+	redisReply *redisrpl= 0;
+	redisrpl = (redisReply *)redisCommand(d->redis_context, "GET %s",
 	    key.c_str());
 
 	d->buildReply(redisrpl, reply, true);
@@ -234,6 +234,7 @@ CryptRedisDb::set(const string &key, const string &value,
 	u_int32_t	*buf;
 	const char	*data = value.data();
 	size_t		 chlen, buflen = value.size();
+	redisReply	*redisrpl = 0;
 
 	if (! d->checkConnect(reply))
 		return CryptRedisResult::Fail;
@@ -253,15 +254,15 @@ CryptRedisDb::set(const string &key, const string &value,
 		data = bufs;
 	}
 
-	::redisReply *redisrpl = 0;
-	redisrpl = (::redisReply *)::redisCommand(d->redis_context,
-	    "SET %s %s", key.data(), data);
+	redisrpl = (redisReply *)redisCommand(d->redis_context, "SET %s %s",
+	    key.data(), data);
 
 	if (!reply) {
 		CryptRedisResult res;
 		d->buildReply(redisrpl, &res);
 		return res.status();
 	}
+
 	if (d->crypt_enabled) {
 		free(buf);
 		free(bufs);
@@ -277,9 +278,9 @@ CryptRedisDb::exists(const string &key, CryptRedisResult *reply)
 	if (! d->checkConnect(reply))
 		return CryptRedisResult::Fail;
 
-	::redisReply *redisrpl = 0;
-	redisrpl = (::redisReply *)::redisCommand(d->redis_context,
-	    "EXISTS %s", key.data());
+	redisReply *redisrpl = 0;
+	redisrpl = (redisReply *)redisCommand(d->redis_context, "EXISTS %s",
+	    key.data());
 	if (! reply) {
 		CryptRedisResult res;
 		d->buildReply(redisrpl, &res);
@@ -296,8 +297,8 @@ CryptRedisDb::ping(CryptRedisResult *reply)
 	if (! d->checkConnect(reply))
 		return CryptRedisResult::Fail;
 
-	::redisReply *redisrpl = 0;
-	redisrpl = (::redisReply *)::redisCommand(d->redis_context, "PING");
+	redisReply *redisrpl = 0;
+	redisrpl = (redisReply *)redisCommand(d->redis_context, "PING");
 
 	if (! reply) {
 		CryptRedisResult res;
@@ -315,8 +316,8 @@ CryptRedisDb::del(const string &key, CryptRedisResult *reply)
 	if (! d->checkConnect(reply))
 		return CryptRedisResult::Fail;
 
-	::redisReply *redisrpl = 0;
-	redisrpl = (::redisReply *)::redisCommand(d->redis_context, "DEL %s",
+	redisReply *redisrpl = 0;
+	redisrpl = (redisReply *)redisCommand(d->redis_context, "DEL %s",
 	    key.data());
 	if (! reply) {
 		CryptRedisResult res;
