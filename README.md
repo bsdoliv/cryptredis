@@ -13,14 +13,14 @@ cryptredis
     redisdb.close();
     ...
 
-    % CRYPTREDISKEY="128bitslongenoughpassphrasekey12" ./simple
+    % CRYPTREDISKEY="41d962ad5479795a10de0a369dea3b1e" ./simple
     bar
 
     % redis-cli get foo
-    "\\xcb32fb1d\\xc3fb804d\\x49795a76\\x4efe2dad"
+    "c2ihkiDk8bygSPYoGzFFJg=="
 
 cryptredis is an experimental redis-client library, able to transparently
-encrypts/decrypts (AES) data while storing/retrieving it to/from Redis.
+encrypt/decrypt (AES) data while storing/retrieving it to/from Redis.
 
 Inspired by MIT's project CryptDB [1].
 
