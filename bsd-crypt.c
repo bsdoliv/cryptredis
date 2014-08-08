@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2013-2014 Andre de Oliveira <deoliveirambx@googlemail.com>
  * Copyright (c) 1999 Niels Provos <provos@citi.umich.edu>
  * All rights reserved.
  *
@@ -150,5 +151,5 @@ cryptredis_key_prepare(const rediscrypt_key_t *key, int encrypt)
                     sizeof(rediscrypt_key_t) * KEY_SIZE * 8);
 
         cryptredis_dump_ctxt(&ctxt);
-        return block;
+        return (block);
 }
