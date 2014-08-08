@@ -14,7 +14,7 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 .ifndef ABSTOP
-ABSTOP!=	cd ${.CURDIR}; pwd
+ABSTOP!=	cd ${.PARSEDIR}; pwd
 .endif
 
 NOMAN=          1 # disables manpages build
