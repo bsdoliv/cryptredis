@@ -49,7 +49,7 @@ cryptredis_decode(const char *src, void *dst, size_t dlen)
 	size_t		 s;
 
 	if ((s = b64_pton(inbuf, dst, dlen)) == -1)
-		errx(1, "b64_ntop: error encoding base64");
+		errx(1, "b64_pton: error decoding base64");
 
 	return (s);
 }

@@ -62,7 +62,6 @@ CryptRedisDbPrivate::setKey(const string &keystr)
 	const char	*p = keystr.data();
 	u_int32_t	*pk = cryptkey;
 	int		 i;
-/* each byte represented by 2 chars */
 #define BLKSIZ (sizeof(u_int32_t) * 2)
 	char		 blkbuf[BLKSIZ];
 
