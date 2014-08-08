@@ -37,8 +37,7 @@ cryptredis_encode(char *dst, size_t dlen, const void *src, size_t slen)
 {
 	unsigned char *p = (unsigned char *)src;
 
-	if (b64_ntop(p, slen, dst, (dlen / sizeof(p[0])))
-	    == -1)
+	if (b64_ntop(p, slen, dst, (dlen / sizeof(p[0]))) == -1)
 		errx(1, "b64_ntop: error encoding base64");
 }
 
