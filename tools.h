@@ -18,9 +18,9 @@
 #ifndef TOOLS_H
 #define TOOLS_H
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 # define CEXT_BEGIN \
-        extern "C" { 
+        extern "C" {
 # define CEXT_END \
         }
 #else

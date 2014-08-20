@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2013-2014 Andre de Oliveira <deoliveirambx@googlemail.com>
+ * Copyright (c) 2013, 2014 Andre de Oliveira <deoliveirambx@googlemail.com>
+ *
+ * Based originally on uvm_swap_encrypt.c from OpenBSD:
  * Copyright (c) 1999 Niels Provos <provos@citi.umich.edu>
  * All rights reserved.
  *
@@ -13,8 +15,7 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *      This product includes software developed by Niels Provos and Andre de
- *      Oliveira.
+ *      This product includes software developed by Niels Provos.
  * 4. The name of the author may not be used to endorse or promote products
  *    derived from this software without specific prior written permission.
  *
@@ -39,10 +40,14 @@
 
 static rijndael_ctx ctxt;
 
-static void cryptredis_dump_ctxt(rijndael_ctx *ctxt);
-static u_int64_t cryptredis_key_prepare(const rediscrypt_key_t *key,
-                                   int encrypt);
+static void	 cryptredis_dump_ctxt(rijndael_ctx *ctxt);
+static u_int64_t cryptredis_key_prepare(const rediscrypt_key_t *key, int
+    encrypt);
 
+/*
+ * Encrypt the data before it goes to swap, the size should be 64-bit
+ * aligned.
+ */
 void 
 cryptredis_encrypt(const rediscrypt_key_t *key,
                    const char *src,

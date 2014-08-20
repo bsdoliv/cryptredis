@@ -28,14 +28,10 @@ CEXT_BEGIN
 
 typedef u_int32_t rediscrypt_key_t;
 
-void cryptredis_encrypt(const rediscrypt_key_t *k,
-                        const char *src,
-                        u_int32_t *dst,
-                        size_t count);
-void cryptredis_decrypt(const rediscrypt_key_t *k,
-                        const u_int32_t *src,
-                        char *dst,
-                        size_t count);
+void	cryptredis_encrypt(const rediscrypt_key_t *, const char *, u_int32_t *,
+	    size_t);
+void	cryptredis_decrypt(const rediscrypt_key_t *, const u_int32_t *, char *,
+	    size_t);
 
 CEXT_END
 
