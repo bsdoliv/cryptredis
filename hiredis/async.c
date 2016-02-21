@@ -29,13 +29,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "fmacros.h"
-#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+
+#include "fmacros.h"
 #include "async.h"
 #include "net.h"
 #include "dict.c"
