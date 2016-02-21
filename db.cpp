@@ -257,8 +257,6 @@ CryptRedisDb::set(const string &key, const string &value,
 
 		cryptredis_encrypt(d->cryptkey, value.data(), buf, buflen);
 		cryptredis_encode(bufs, bufslen, buf, buflen);
-		fprintf(stderr, "%s bufslen %zu buflen %zu bufs %s\n", __func__,
-		    bufslen, buflen, bufs);
 		data = bufs;
 	}
 
