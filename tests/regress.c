@@ -87,8 +87,10 @@ test_encrypt()
 	fprintf(stderr, "==> end test make64align\n");
 	fprintf(stderr, "==> begin test encrypt\n");
 
+	memset(dstencbuf, 0, sizeof(dstencbuf));
 	encrypt_wrap(key, rawbuf, (u_int32_t *)dstencbuf, buflen);
 	cryptredis_dumphex32("=> dstencbuf", dstencbuf, buflen);
+	cryptredis_dumphex32("=> encrypted_buf", encrypted_buf, sizeof(encrypted_buf));
 	assert(memcmp(dstencbuf, encrypted_buf, buflen) == 0);
 
 	fprintf(stderr, "==> end test encrypt\n");
