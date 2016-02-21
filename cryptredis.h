@@ -85,7 +85,7 @@ private:
 class CryptRedisResultSet : public list<CryptRedisResult>
 {
 public:
-	string statusString() { };
+	string statusString() { return string(); };
 };
 
 class CryptRedisDbPrivate;
