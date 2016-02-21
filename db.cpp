@@ -17,6 +17,8 @@
 
 #include <sys/param.h>
 
+#include <limits.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "hiredis/hiredis.h"
@@ -81,7 +83,7 @@ CryptRedisDbPrivate::buildReply(redisReply *redisrpl, CryptRedisResult *rpl,
 	char		*bufs;
 	u_int32_t	*buf;
 	char		*str = redisrpl->str;
-	size_t		 len = redisrpl->len, chlen;
+	size_t		 len = redisrpl->len, bufslen;
 
 	if (!redisrpl) {
 		rpl->invalidate();
@@ -89,16 +91,15 @@ CryptRedisDbPrivate::buildReply(redisReply *redisrpl, CryptRedisResult *rpl,
 	}
 
 	if (decrypt && crypt_enabled) {
-		len = cryptredis_encsiz(len);
 		if ((buf = (u_int32_t *)calloc(1, len)) == NULL)
 			return;
 
-		chlen = cryptredis_decode(str, buf, len);
+		bufslen = cryptredis_decode(str, buf, len);
 
-		if ((bufs = (char *)calloc(1, chlen)) == NULL)
+		if ((bufs = (char *)calloc(1, bufslen)) == NULL)
 			return;
 
-		cryptredis_decrypt(cryptkey, buf, bufs, chlen);
+		cryptredis_decrypt(cryptkey, buf, bufs, bufslen);
 
 		str = bufs;
 		len = strlen(str);
@@ -238,7 +239,7 @@ CryptRedisDb::set(const string &key, const string &value,
 	char		*bufs;
 	u_int32_t	*buf;
 	const char	*data = value.data();
-	size_t		 chlen, buflen = value.size();
+	size_t		 buflen = value.size(), bufslen;
 	redisReply	*redisrpl = 0;
 
 	if (! d->checkConnect(reply))
@@ -246,16 +247,18 @@ CryptRedisDb::set(const string &key, const string &value,
 
 	if (d->crypt_enabled) {
 		buflen = cryptredis_align64(buflen);
-		chlen = cryptredis_encsiz(buflen);
+		bufslen = cryptredis_encsiz(buflen);
 
 		if ((buf = (u_int32_t *)calloc(1, buflen)) == NULL)
 			return CryptRedisResult::Fail;
 
-		if ((bufs = (char *)calloc(1, chlen)) == NULL)
+		if ((bufs = (char *)calloc(1, bufslen)) == NULL)
 			return CryptRedisResult::Fail;
 
 		cryptredis_encrypt(d->cryptkey, value.data(), buf, buflen);
-		cryptredis_encode(bufs, chlen, buf, buflen);
+		cryptredis_encode(bufs, bufslen, buf, buflen);
+		fprintf(stderr, "%s bufslen %zu buflen %zu bufs %s\n", __func__,
+		    bufslen, buflen, bufs);
 		data = bufs;
 	}
 
@@ -368,7 +371,10 @@ CryptRedisDb::resetKey()
 		d->last_error = "key is too small (less than 128bits)";
 		return (-1);
 	}
+
 	d->setKey(keystr);
+
+	return (0);
 }
 
 int

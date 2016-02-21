@@ -17,6 +17,7 @@
 
 #include <sys/types.h>
 
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +30,7 @@
 size_t
 cryptredis_encsiz(int len)
 {
-	return (len * 2 + 1);
+	return (((len + 2) / 3) * 4 + 1);
 }
 
 void
@@ -37,17 +38,16 @@ cryptredis_encode(char *dst, size_t dlen, const void *src, size_t slen)
 {
 	unsigned char *p = (unsigned char *)src;
 
-	if (b64_ntop(p, slen, dst, (dlen / sizeof(p[0]))) == -1)
+	if (b64_ntop(p, slen, dst, dlen) == -1)
 		errx(1, "b64_ntop: error encoding base64");
 }
 
 size_t
 cryptredis_decode(const char *src, void *dst, size_t dlen)
 {
-	unsigned char	*inbuf = (unsigned char *)src;
 	size_t		 s;
 
-	if ((s = b64_pton(inbuf, dst, dlen)) == -1)
+	if ((s = b64_pton(src, dst, dlen)) == -1)
 		errx(1, "b64_pton: error decoding base64");
 
 	return (s);
