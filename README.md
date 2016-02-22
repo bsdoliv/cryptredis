@@ -31,7 +31,8 @@ Inspired by MIT's project CryptDB [1].
 [3] http://www.openbsd.org/papers/swapencrypt.pdf
 
 Build & Install
-=====   =======
+===============
+
 	Bootstrap bmake
 
 	% tools/bmakebuild.sh
