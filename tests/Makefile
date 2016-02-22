@@ -28,11 +28,14 @@ TESTS+=		"cryptwrite/cryptwrite.sh 16"
 TESTS+=		cryptread/cryptread.sh
 TESTS+=		"cryptwrite/cryptwrite.sh 8kb"
 TESTS+=		cryptread/cryptread.sh
+TESTS+=		"cryptwrite/cryptwrite.sh 8mb"
+TESTS+=		cryptread/cryptread.sh
+TESTS+=		"make run-exectests"
 
 run: .PHONY
 	@for t in ${TESTS}; do \
 		printf "=> running %s %s" $${t}; \
-		eval ./$${t} >/dev/null 2>&1; \
+		eval $${t} >regress.log 2>&1; \
 		if [ $$? = 0 ]; then \
 			printf " success"; \
 		else \
@@ -49,7 +52,7 @@ run-perftests: .PHONY
 	cd ${.CURDIR}/rediscliset && ${.MAKE} run-perftests
 	cd ${.CURDIR}/rediscliget && ${.MAKE} run-perftests
 
-CLEANFILES+=	*.core
+CLEANFILES+=	*.core regress.log
 
 .include <bsd.prog.mk>
 .include <bsd.subdir.mk>
