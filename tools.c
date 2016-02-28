@@ -42,19 +42,18 @@ cryptredis_align64(u_int32_t n)
 void
 cryptredis_dumphex32(const char *label, void *buf, size_t len)
 {
-	u_int32_t	*p = (u_int32_t *)buf;
+	u_int8_t	*p = (u_int8_t *)buf;
 	int		 i = 0;
 
 	fprintf(stderr, "dumphex%s%s%s:\n",
 		label == NULL ? "" : " [",
 		label == NULL ? "" : label,
 		label == NULL ? "" : "]");
-	for (; i < (len / sizeof(u_int32_t)); p++, i++) {
-		fprintf(stderr, " 0x%08x", *p);
-		if (((i + 1) % 4) == 0)
+	for (; i < (len / sizeof(u_int8_t)); p++, i++) {
+		fprintf(stderr, " x%02x", *p);
+		if (((i + 1) % 16) == 0)
 			fprintf(stderr, "\n");
 	}
 
-	if (((i + 1) % 4) == 0)
-		fprintf(stderr, "\n");
+	fprintf(stderr, "\n");
 }
