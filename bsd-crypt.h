@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
+ * Copyright (c) 2013-2016 Andre de Oliveira <deoliveirambx@googlemail.com>
  * All rights reserved.
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -22,16 +22,18 @@
 
 #include "tools.h"
 
-#define KEY_SIZE        4 /* 128-bit keys */
-
 CEXT_BEGIN
 
-typedef u_int32_t rediscrypt_key_t;
+struct cryptredis_key {
+	u_int8_t	key[32];
+	u_int8_t	salt[8];
+	u_int32_t	iv[4];
+};
 
-void	cryptredis_encrypt(const rediscrypt_key_t *, const char *, u_int32_t *,
-	    size_t);
-void	cryptredis_decrypt(const rediscrypt_key_t *, const u_int32_t *, char *,
-	    size_t);
+void	cryptredis_encrypt(const struct cryptredis_key *, const char *,
+	    u_int32_t *, size_t);
+void	cryptredis_decrypt(const struct cryptredis_key *, const u_int32_t *,
+	    char *, size_t);
 
 CEXT_END
 

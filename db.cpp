@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
+ * Copyright (c) 2013-2016 Andre de Oliveira <deoliveirambx@googlemail.com>
  * All rights reserved.
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -20,6 +20,9 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <util.h>
+
+#include <iostream>
 
 #include "hiredis/hiredis.h"
 #include "bsd-crypt.h"
@@ -28,6 +31,12 @@
 #include "tools.h"
 
 CRPTRDS_BEGIN_NAMESPACE
+
+#if 0
+#define DPRINTF fprintf
+#else
+#define DPRINTF(x...) do {} while (0)
+#endif
 
 struct CryptRedisDbPrivate {
 	redisContext		*redis_context;
@@ -38,14 +47,40 @@ struct CryptRedisDbPrivate {
 	int			 port;
 
 	bool			 crypt_enabled;
-	rediscrypt_key_t	 cryptkey[KEY_SIZE];
+	struct cryptredis_key	 crkey;
 
-	void buildReply(redisReply *, CryptRedisResult *,
-	    bool decrypt = false);
-	bool checkConnect(CryptRedisResult *reply);
-	bool connect(const string &h, int p);
-	void setKey(const string &keystr);
+	void	buildReply(redisReply *, CryptRedisResult *, bool decrypt =
+		    false);
+	bool	checkConnect(CryptRedisResult *reply);
+	bool	connect(const string &h, int p);
+	int	setKey(const string &keyfilename);
+	void	loadhexbin(void *, const char *, size_t);
 };
+
+void
+CryptRedisDbPrivate::loadhexbin(void *pk, const char *value, size_t pksize)
+{
+	char	 	 tmpv[3];
+	const char	*vp = value;
+	u_int8_t	*pkp = (u_int8_t *)pk;
+	int		 i;
+	int		 vlen;
+
+	vlen = strlen(value);
+
+	for (i = 0; i < pksize; i++) {
+		memset(tmpv, 0, sizeof(tmpv));
+		memcpy(tmpv, vp, 2);
+		pkp[i] = (u_int8_t)strtol(tmpv, (char **)NULL, 16);
+
+		DPRINTF(stderr, "i %d tmpv %s pkp[i] %02x\n", i, tmpv, pkp[i]);
+
+		if ((vlen -= 2) <= 0)
+			break;
+
+		vp += 2;
+	}
+}
 
 bool
 CryptRedisDbPrivate::checkConnect(CryptRedisResult *reply)
@@ -58,22 +93,65 @@ CryptRedisDbPrivate::checkConnect(CryptRedisResult *reply)
 	return (true);
 }
 
-void 
-CryptRedisDbPrivate::setKey(const string &keystr)
+int
+CryptRedisDbPrivate::setKey(const string &keyfilename)
 {
-	const char	*p = keystr.data();
-	u_int32_t	*pk = cryptkey;
-	int		 i;
-#define BLKSIZ (sizeof(u_int32_t) * 2)
-	char		 blkbuf[BLKSIZ];
+	FILE		*stream;
+	int	 	 i;
+	char	 	 line[LINE_MAX], *kp, *vp;
+	char		 tmpkey[LINE_MAX];
 
-	for (i = 0; i < KEY_SIZE; i++) {
-		explicit_bzero(blkbuf, sizeof(blkbuf));
-		snprintf(blkbuf, sizeof(blkbuf), "0x%s", p);
-		pk[i] = (u_int32_t)strtol(blkbuf, (char **)NULL, 16);
-		p +=  BLKSIZ;
+	if ((stream = fopen(keyfilename.data(), "r")) == NULL) {
+		last_error = "fail to open file";
+		last_error += keyfilename;
+		std::cerr << last_error;
+		return (-1);
 	}
-#undef BLKSIZ
+
+	/* no more than 3 lines */
+	for (i = 0; i < 3; i++) {
+		memset(line, 0, sizeof(line));
+		if (fgets(line, LINE_MAX, stream) == NULL)
+			break;
+		if (strlen(line) == 0)
+			break;
+		kp = line;
+		vp = strchr(kp, '=');
+
+		if (vp == NULL)
+			continue;
+
+		if (*vp == '=') {
+			*vp++ = '\0';
+			vp += strspn(vp, " \t\r\n");
+		} else {
+			*vp++ = '\0';
+		}
+
+		if (vp == NULL)
+			continue;
+
+		kp[strcspn(kp, "\r\n\t ")] = '\0';
+		vp[strcspn(vp, "\r\n\t ")] = '\0';
+
+		DPRINTF(stderr, "key %s value %s\n", kp, vp);
+		if (!strncmp(kp, "salt", 5)) {
+			loadhexbin(crkey.salt, vp, sizeof(crkey.salt));
+		} else if (!strncmp(kp, "key", 3)) {
+			memcpy(tmpkey, vp, sizeof(tmpkey));
+		} else if (!strncmp(kp, "iv", 2)) {
+			loadhexbin(crkey.iv, vp, sizeof(crkey.iv));
+		}
+
+		kp = NULL;
+		vp = NULL;
+	}
+	fclose(stream);
+
+	pkcs5_pbkdf2(tmpkey, strlen(tmpkey), crkey.salt, sizeof(crkey.salt),
+	    crkey.key, sizeof(crkey.key), 1000);
+
+	return 0;
 }
 
 void 
@@ -99,7 +177,7 @@ CryptRedisDbPrivate::buildReply(redisReply *redisrpl, CryptRedisResult *rpl,
 		if ((bufs = (char *)calloc(1, bufslen)) == NULL)
 			return;
 
-		cryptredis_decrypt(cryptkey, buf, bufs, bufslen);
+		cryptredis_decrypt(&crkey, buf, bufs, bufslen);
 
 		str = bufs;
 		len = strlen(str);
@@ -185,7 +263,7 @@ CryptRedisDb::CryptRedisDb() :
 	d->port = -1;
 	d->redis_connected = false;
 	d->redis_context = 0;
-	explicit_bzero(d->cryptkey, sizeof(d->cryptkey));
+	explicit_bzero(&d->crkey, sizeof(d->crkey));
 }
 
 CryptRedisDb::~CryptRedisDb()
@@ -193,7 +271,7 @@ CryptRedisDb::~CryptRedisDb()
 	if (d->crypt_enabled)
 		setCryptEnabled(false);
 	close();
-	explicit_bzero(d->cryptkey, sizeof(d->cryptkey));
+	explicit_bzero(&d->crkey, sizeof(d->crkey));
 	delete d;
 }
 
@@ -255,7 +333,7 @@ CryptRedisDb::set(const string &key, const string &value,
 		if ((bufs = (char *)calloc(1, bufslen)) == NULL)
 			return CryptRedisResult::Fail;
 
-		cryptredis_encrypt(d->cryptkey, value.data(), buf, buflen);
+		cryptredis_encrypt(&d->crkey, value.data(), buf, buflen);
 		cryptredis_encode(bufs, bufslen, buf, buflen);
 		data = bufs;
 	}
@@ -360,26 +438,22 @@ CryptRedisDb::setPort(int p)
 int
 CryptRedisDb::resetKey()
 {
-	char *keystr = getenv("CRYPTREDISKEY");
+	char *keyfile;
 
-	if (keystr == NULL) {
-		d->last_error = "invalid key";
-		return (-1);
-	} else if ((strlen(keystr) < (KEY_SIZE * sizeof(u_int32_t)))) {
-		d->last_error = "key is too small (less than 128bits)";
+	if ((keyfile = getenv("CRYPTREDIS_KEYFILE")) == NULL) {
+		d->last_error = "CRYPTREDIS_KEYFILE environment variable not "
+		    "set";
 		return (-1);
 	}
 
-	d->setKey(keystr);
-
-	return (0);
+	return (d->setKey(keyfile));
 }
 
 int
 CryptRedisDb::setCryptEnabled(bool enable)
 {
 	d->crypt_enabled = false;
-	explicit_bzero(d->cryptkey, sizeof(d->cryptkey));
+	explicit_bzero(&d->crkey, sizeof(d->crkey));
 
 	if (!enable)
 		return (0);
