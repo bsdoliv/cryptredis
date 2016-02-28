@@ -15,19 +15,46 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef ENCRYPT_H
-#define ENCRYPT_H
+#include <assert.h>
 
-#include "bsd-crypt.h"
-#include "tools.h"
+#include <iostream>
 
-CEXT_BEGIN
+using namespace std;
 
-void	encrypt_wrap(const struct cryptredis_key *, const char *src, u_int32_t
-	    *dst, int dstlen);
-void	decrypt_wrap(const struct cryptredis_key *, const u_int32_t *src, char
-	    *dst, int len);
+class APICryptLabel {
+public:
+	string label;
+	APICryptLabel(string _label) :
+	    label(_label)
+	{
+		cerr << "==> begin test " << label << endl;
+	};
+	~APICryptLabel()
+	{
+		cerr << "==> end test " << label << endl;
+	};
+};
 
-CEXT_END
+#define APICRYPT_OPEN()			\
+	CryptRedisDb		crdb;	\
+	CryptRedisResult	crres;	\
+	assert(crdb.open("127.0.0.1", 6379))
 
-#endif /* ! ENCRYPT_H */
+#define APICRYPT_CLOSE()	\
+	assert(crdb.close())	\
+	assert(!crdb.connected())
+
+#define APICRYPT_LABEL(label)	APICryptLabel _acl(label);
+
+#define APICRYPT_REPORT(...)		\
+	fprintf(stderr,"=> ");		\
+	fprintf(stderr, __VA_ARGS__);	\
+	fprintf(stderr, "\n");
+
+static inline string
+saltstr(void)
+{
+    char saltbuf[33];
+    strlcpy(saltbuf, bcrypt_gensalt(6), sizeof(saltbuf));
+    return (string(saltbuf));
+}

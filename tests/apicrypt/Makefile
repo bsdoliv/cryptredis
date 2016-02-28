@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
+# Copyright (c) 2016 Andre de Oliveira <deoliveirambx@googlemail.com>
 # All rights reserved.
 #
 # Permission to use, copy, modify, and distribute this software for any purpose
@@ -13,9 +13,9 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-PROG=	apitest
+PROG=	apicrypttest
 
 .PATH:	${.CURDIR}/..
-SRCS=	api.cpp
+SRCS=	apicrypt.cpp
 
 .include "${.CURDIR}/../api.mk"

@@ -20,6 +20,7 @@ SRCS=		rediscliget.cpp
 
 CPPFLAGS+=	-ggdb3
 LDADD+=		-lstdc++
+LDADD+=		-lutil
 LDADD+=		${.CURDIR}/../../lib/libcryptredis.a
 
 run: .PHONY

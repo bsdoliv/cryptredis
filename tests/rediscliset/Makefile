@@ -31,7 +31,7 @@ PROG= set
 SRCS+= rediscliset.cpp
 
 CPPFLAGS+= -ggdb3
-LDADD+= -lstdc++
+LDADD+= -lstdc++ -lutil
 LDADD+= ${.CURDIR}/../../lib/libcryptredis.a
 
 run: .PHONY

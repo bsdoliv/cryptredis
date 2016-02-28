@@ -27,16 +27,7 @@
 
 #include "cryptredis.h"
 #include "encode.h"
-
-std::string
-random_nstr()
-{
-    char randbuf[33];
-
-    strlcpy(randbuf, bcrypt_gensalt(6), sizeof(randbuf));
-
-    return (std::string(randbuf));
-}
+#include "apicrypt.h"
 
 void
 setup(CryptRedisDb *rdb)
@@ -52,86 +43,6 @@ teardown(CryptRedisDb *rdb)
 {
     rdb->close();
     assert(!rdb->connected());
-}
-
-void
-test_crypt()
-{
-    std::cerr << "==> begin test redisdb.setCryptEnabled()" << std::endl;
-    CryptRedisDb redisdb;
-    assert(redisdb.open("127.0.0.1", 6379));
-
-    // test without key set, encrypt should fail
-    redisdb.setCryptEnabled(true);
-    assert(! redisdb.cryptEnabled());
-    assert(strncmp(redisdb.lastError().data(), "invalid key",
-		   redisdb.lastError().size()) == 0);
-    CryptRedisResult result;
-    std::string key = "foo_" + random_nstr();
-    std::string value = "bar_" + random_nstr();
-
-    std::cerr << "=> key " << key << std::endl;
-    assert(CryptRedisResult::Ok == redisdb.set(key, value));
-    redisdb.get(key, &result);
-    std::cerr << "=> value " << value << std::endl;
-    std::cerr << "=> result " << result.toString() << std::endl;
-    assert(CryptRedisResult::Ok == result.status());
-    assert(result.toString() == value);
-    // cleanup
-    assert(CryptRedisResult::Ok == redisdb.del(key));
-    result.clear();
-
-    // test with key properly set, encrypt should works
-    assert(putenv((char *)"CRYPTREDISKEY=41d962ad5479795a10de0a369dea3b1e") == 0);
-    redisdb.setCryptEnabled(true);
-    assert(redisdb.cryptEnabled());
-
-    assert(CryptRedisResult::Ok == redisdb.set(key, value));
-    redisdb.get(key, &result);
-    std::cerr << "=> value " << value << std::endl;
-    std::cerr << "=> result " << result.toString() << std::endl;
-    assert(CryptRedisResult::Ok == result.status());
-    assert(result.toString() == value);
-    result.clear();
-    
-    /*
-     * retrieve the same key, disabling encrypt, should receive a ciphered
-     * buffer
-     */
-    redisdb.setCryptEnabled(false);
-    assert(! redisdb.cryptEnabled());
-
-    redisdb.get(key, &result);
-    std::cerr << "=> key nok redisdb.get()" << std::endl;
-    std::cerr << "=> value " << value << std::endl;
-    std::cerr << "=> result " << result.toString() << std::endl;
-    assert(CryptRedisResult::Ok == result.status());
-    assert(result.toString() != value);
-
-    size_t encsiz = cryptredis_encsiz(cryptredis_align64(value.size())) - 1;
-    printf("result %lu encsiz %lu\n", result.toString().size(), encsiz);
-    assert(result.toString().size() == encsiz);
-
-    // cleanup
-    assert(CryptRedisResult::Ok == redisdb.del(key));
-    result.clear();
-    assert(unsetenv((char *)"CRYPTREDISKEY") == 0);
-
-    // test key too small
-    assert(putenv((char *)"CRYPTREDISKEY=41d962ad547") == 0);
-    redisdb.setCryptEnabled(true);
-    assert(! redisdb.cryptEnabled());
-    std::cerr << "=> lasterror() " << redisdb.lastError() << std::endl;
-    assert(strncmp(redisdb.lastError().data(),
-                   "key is too small (less than 128bits)",
-                   redisdb.lastError().size()) == 0);
-
-    // cleanup
-    assert(unsetenv((char *)"CRYPTREDISKEY") == 0);
-    redisdb.close();
-    assert(!redisdb.connected());
-
-    std::cerr << "==> end test redisdb.setCryptEnabled()" << std::endl;
 }
 
 void
@@ -166,7 +77,7 @@ test_exists()
     std::cerr << "==> begin test redisdb.exists()" << std::endl;
     CryptRedisDb redisdb;
     setup(&redisdb);
-    std::string key = "foo_" + random_nstr();
+    std::string key = "foo_" + saltstr();
     assert(CryptRedisResult::Ok == redisdb.set(key, "bar"));
 
     // no result
@@ -197,7 +108,7 @@ test_del()
     std::cerr << "==> begin test redisdb.del()" << std::endl;
     CryptRedisDb redisdb;
     setup(&redisdb);
-    std::string key = "foo_" + random_nstr();
+    std::string key = "foo_" + saltstr();
     assert(CryptRedisResult::Ok == redisdb.set(key, "bar"));
     assert(CryptRedisResult::Ok == redisdb.exists(key));
     std::cerr << "=> key " << key << std::endl;
@@ -210,6 +121,7 @@ test_del()
     teardown(&redisdb);
     std::cerr << "==> end test redisdb.del()" << std::endl;
 }
+
 int
 main(void)
 {
@@ -259,7 +171,6 @@ main(void)
     test_ping();
     test_exists();
     test_del();
-    test_crypt();
 
     return 0;
 
