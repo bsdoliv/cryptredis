@@ -3,9 +3,9 @@ cryptredis
 cryptredis is an experimental BSD licensed c++ client library for Redis
 database, which also offers encryption (AES) for string values.
 
-It has been inspired in by projects such as MIT's CryptDB [1], and Google's
-encrypted_bigquery_client [2], lots of concepts and code imported from
-OpenBSD's swap encryption and cryptographic softraid(4) [3,4].
+It has been inspired by MIT's CryptDB [1], Google's encrypted_bigquery_client
+[2], and several concepts from OpenBSD's swap encryption and
+cryptographic softraid(4) [3,4].
 
 Currently only strings store is supported, commands get and set.
 
