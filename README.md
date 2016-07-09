@@ -3,7 +3,8 @@ cryptredis
 cryptredis is an experimental BSD licensed c++ client library for Redis
 database, which also offers symmetric encryption (AES) of string values.
 
-encrypt/decrypt with local key, store encrypted remotely.
+particularly useful for geo-distributed storage scenarios:
+encrypt/decrypt with local key, store remotely encrypted.
 
 It has been inspired by MIT's CryptDB [1], Google's encrypted_bigquery_client
 [2], and several concepts from OpenBSD's swap encryption and
