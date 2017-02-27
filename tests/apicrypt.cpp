@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
- * All rights reserved.
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -23,7 +22,7 @@
 #include <stdlib.h>
 #include <pwd.h>
 
-#include "cryptredis.h"
+#include "cryptredisxx.h"
 #include "encode.h"
 #include "apicrypt.h"
 
@@ -35,8 +34,14 @@ main(void)
 	string	entrykey = "foo_" + saltstr();
 	string	entryval = "bar_" + saltstr();
 	size_t	encsiz;
+	char	buf[LINE_MAX];
+	char	keyfile[LINE_MAX];
 
-	assert(putenv((char *)"CRYPTREDIS_KEYFILE=test.key") == 0);
+	memset(buf, 0, sizeof(buf));
+	snprintf(keyfile, sizeof(keyfile),
+	    "CRYPTREDIS_KEYFILE=%s/../../obj/test.key", getcwd(buf,
+	    sizeof(buf)));
+	assert(!putenv(keyfile));
 	assert(crdb.setCryptEnabled(true) == 0);
 	assert(crdb.cryptEnabled());
 	assert(crdb.set(entrykey, entryval) == CryptRedisResult::Ok);

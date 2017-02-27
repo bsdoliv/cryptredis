@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
- * All rights reserved.
+ * Copyright (c) 2013-2016 Andre de Oliveira <deoliveirambx@googlemail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,7 +15,7 @@
  */
 
 #include "hiredis/hiredis.h"
-#include "cryptredis.h"
+#include "cryptredisxx.h"
 
 CRPTRDS_BEGIN_NAMESPACE
 

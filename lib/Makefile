@@ -15,6 +15,10 @@
 
 LIB=		cryptredis
 #CPPFLAGS+=	-DDEBUG_RIJNDAEL_CTXT
+CPPFLAGS+=	-ggdb3 -O0
+CFLAGS+=	-Wall -Wmissing-prototypes -Wmissing-declarations -Wshadow
+CFLAGS+=	-Wpointer-arith -Wsign-compare
+
 LDSTATIC=	-static
 
 MKLINT=		no
@@ -23,7 +27,7 @@ NOPIC=		1
 NOMAN=		1
 
 .PATH:		${.CURDIR}/..
-SRCS=		db.cpp result.cpp bsd-rijndael.c bsd-crypt.c encode.c tools.c
+SRCS=		cryptredis.c bsd-rijndael.c bsd-crypt.c encode.c tools.c
 
 .PATH:		${.CURDIR}/../hiredis
 SRCS+=		async.c dict.c hiredis.c net.c sds.c

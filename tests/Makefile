@@ -1,5 +1,4 @@
-# Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
-# All rights reserved.
+# Copyright (c) 2013-2016 Andre de Oliveira <deoliveirambx@googlemail.com>
 #
 # Permission to use, copy, modify, and distribute this software for any purpose
 # with or without fee is hereby granted, provided that the above copyright
@@ -21,10 +20,12 @@ SUBDIR+=	apicrypt_nokey
 SUBDIR+=	apicrypt
 SUBDIR+=	rediscliget
 SUBDIR+=	rediscliset
+SUBDIR+=	cryptredis_client_r
 
-TESTS=		api/apitest
-TESTS+=		apicrypt/apicrypttest
-TESTS+=		apicrypt_nokey/apicrypt_nokeytest
+TESTS=		cryptredis_client_r
+TESTS+=		api
+TESTS+=		apicrypt
+TESTS+=		apicrypt_nokey
 #TESTS+=		cryptregress/regress
 #TESTS+=		"cryptwrite/cryptwrite.sh 8"
 #TESTS+=		cryptread/cryptread.sh
@@ -34,13 +35,13 @@ TESTS+=		apicrypt_nokey/apicrypt_nokeytest
 #TESTS+=		cryptread/cryptread.sh
 #TESTS+=		"cryptwrite/cryptwrite.sh 8mb"
 #TESTS+=		cryptread/cryptread.sh
-TESTS+=		"make run-exectests"
+#TESTS+=		"make run-exectests"
 
 run: .PHONY
 	@for t in ${TESTS}; do \
+		cd ${.CURDIR} && ${MAKE} test.key; \
 		printf "=> running %s %s" $${t}; \
-		${MAKE} test.key 2>/dev/null >/dev/null; \
-		eval $${t} >regress.log 2>&1; \
+		cd ${.CURDIR}/$${t}/obj && eval $${t}; \
 		if [ $$? = 0 ]; then \
 			printf " success"; \
 		else \
@@ -61,7 +62,13 @@ run-perftests: .PHONY
 	cd ${.CURDIR}/rediscliset && ${.MAKE} run-perftests
 	cd ${.CURDIR}/rediscliget && ${.MAKE} run-perftests
 
-CLEANFILES+=	*.core regress.log test.key
+resetdb: .PHONY
+	@echo 'keys *' | redis-cli | cut -d' ' -f2 |	\
+		while read k; do			\
+			redis-cli del "$k";		\
+		done
+
+CLEANFILES+=	*core regress.log test.key
 
 .include <bsd.prog.mk>
 .include <bsd.subdir.mk>

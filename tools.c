@@ -43,7 +43,7 @@ void
 cryptredis_dumphex32(const char *label, void *buf, size_t len)
 {
 	u_int8_t	*p = (u_int8_t *)buf;
-	int		 i = 0;
+	unsigned int	 i = 0;
 
 	fprintf(stderr, "dumphex%s%s%s:\n",
 		label == NULL ? "" : " [",

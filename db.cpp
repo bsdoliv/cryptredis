@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2013-2016 Andre de Oliveira <deoliveirambx@googlemail.com>
- * All rights reserved.
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,412 +14,179 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <sys/param.h>
-
-#include <limits.h>
-#include <stdlib.h>
-#include <string.h>
-#include <util.h>
-
-#include <iostream>
-
 #include "hiredis/hiredis.h"
-#include "bsd-crypt.h"
 #include "cryptredis.h"
-#include "encode.h"
-#include "tools.h"
+#include "cryptredisxx.h"
 
 CRPTRDS_BEGIN_NAMESPACE
 
-#if 0
-#define DPRINTF fprintf
-#else
-#define DPRINTF(x...) do {} while (0)
-#endif
-
 struct CryptRedisDbPrivate {
-	redisContext		*redis_context;
-	bool			 redis_connected;
-	string			 last_error;
-
+	struct cryptredis	*cryptredis;
 	string			 host;
 	int			 port;
+	string			 errmsg;
 
-	bool			 crypt_enabled;
-	struct cryptredis_key	 crkey;
-
-	void	buildReply(redisReply *, CryptRedisResult *, bool decrypt =
-		    false);
-	bool	checkConnect(CryptRedisResult *reply);
-	bool	connect(const string &h, int p);
-	int	setKey(const string &keyfilename);
-	void	loadhexbin(void *, const char *, size_t);
+	void buildReply(CryptRedisResult *);
 };
 
-void
-CryptRedisDbPrivate::loadhexbin(void *pk, const char *value, size_t pksize)
-{
-	char	 	 tmpv[3];
-	const char	*vp = value;
-	u_int8_t	*pkp = (u_int8_t *)pk;
-	int		 i;
-	int		 vlen;
-
-	vlen = strlen(value);
-
-	for (i = 0; i < pksize; i++) {
-		memset(tmpv, 0, sizeof(tmpv));
-		memcpy(tmpv, vp, 2);
-		pkp[i] = (u_int8_t)strtol(tmpv, (char **)NULL, 16);
-
-		DPRINTF(stderr, "i %d tmpv %s pkp[i] %02x\n", i, tmpv, pkp[i]);
-
-		if ((vlen -= 2) <= 0)
-			break;
-
-		vp += 2;
-	}
-}
-
-bool
-CryptRedisDbPrivate::checkConnect(CryptRedisResult *reply)
-{
-	if (!connect(host, port)) {
-		if (reply)
-			reply->invalidate();
-		return (false);
-	}
-	return (true);
-}
-
-int
-CryptRedisDbPrivate::setKey(const string &keyfilename)
-{
-	FILE		*stream;
-	int	 	 i;
-	char	 	 line[LINE_MAX], *kp, *vp;
-	char		 tmpkey[LINE_MAX];
-
-	if ((stream = fopen(keyfilename.data(), "r")) == NULL) {
-		last_error = "fail to open file";
-		last_error += keyfilename;
-		std::cerr << last_error;
-		return (-1);
-	}
-
-	/* no more than 3 lines */
-	for (i = 0; i < 3; i++) {
-		memset(line, 0, sizeof(line));
-		if (fgets(line, LINE_MAX, stream) == NULL)
-			break;
-		if (strlen(line) == 0)
-			break;
-		kp = line;
-		vp = strchr(kp, '=');
-
-		if (vp == NULL)
-			continue;
-
-		if (*vp == '=') {
-			*vp++ = '\0';
-			vp += strspn(vp, " \t\r\n");
-		} else {
-			*vp++ = '\0';
-		}
-
-		if (vp == NULL)
-			continue;
-
-		kp[strcspn(kp, "\r\n\t ")] = '\0';
-		vp[strcspn(vp, "\r\n\t ")] = '\0';
-
-		DPRINTF(stderr, "key %s value %s\n", kp, vp);
-		if (!strncmp(kp, "salt", 5)) {
-			loadhexbin(crkey.salt, vp, sizeof(crkey.salt));
-		} else if (!strncmp(kp, "key", 3)) {
-			memcpy(tmpkey, vp, sizeof(tmpkey));
-		} else if (!strncmp(kp, "iv", 2)) {
-			loadhexbin(crkey.iv, vp, sizeof(crkey.iv));
-		}
-
-		kp = NULL;
-		vp = NULL;
-	}
-	fclose(stream);
-
-	pkcs5_pbkdf2(tmpkey, strlen(tmpkey), crkey.salt, sizeof(crkey.salt),
-	    crkey.key, sizeof(crkey.key), 1000);
-
-	return 0;
-}
-
 void 
-CryptRedisDbPrivate::buildReply(redisReply *redisrpl, CryptRedisResult *rpl,
-	bool decrypt)
+CryptRedisDbPrivate::buildReply(CryptRedisResult *rpl)
 {
-	char		*bufs;
-	u_int32_t	*buf;
-	char		*str = redisrpl->str;
-	size_t		 len = redisrpl->len, bufslen;
+	int type;
 
-	if (!redisrpl) {
-		rpl->invalidate();
-		return;
-	}
+	rpl->invalidate();
 
-	if (decrypt && crypt_enabled) {
-		if ((buf = (u_int32_t *)calloc(1, len)) == NULL)
-			return;
+	type = cryptredis_response_type(cryptredis);
+	rpl->setStatus(CryptRedisResult::Ok);
+	rpl->setType(cryptredis_response_type(cryptredis));
 
-		bufslen = cryptredis_decode(str, buf, len);
-
-		if ((bufs = (char *)calloc(1, bufslen)) == NULL)
-			return;
-
-		cryptredis_decrypt(&crkey, buf, bufs, bufslen);
-
-		str = bufs;
-		len = strlen(str);
-	}
-
-	switch (redisrpl->type) {
+	switch (type) {
 	case REDIS_REPLY_ERROR:
 		rpl->setStatus(CryptRedisResult::Fail);
 		/* FALLTHROUGH */
 	case REDIS_REPLY_STATUS:
 	case REDIS_REPLY_STRING:
-		if (redisrpl->type != REDIS_REPLY_ERROR)
-			rpl->setStatus(CryptRedisResult::Ok);
-		rpl->setData(str);
+		rpl->setData(cryptredis_response_string(cryptredis));
 		break;
-	case REDIS_REPLY_INTEGER:
-		rpl->setData(redisrpl->integer);
-		rpl->setStatus(CryptRedisResult::Ok);
 		break;
 	case REDIS_REPLY_ARRAY:
 		// TODO
 		break;
 	}
 
-	rpl->setSize(len);
-	rpl->setType(redisrpl->type);
-
-	freeReplyObject(redisrpl);
-	if (decrypt && crypt_enabled) {
-		free(buf);
-		free(bufs);
-	}
-	redisrpl = 0;
-}
-
-bool 
-CryptRedisDbPrivate::connect(const string &h, int p)
-{
-	if (redis_connected)
-		return (redis_connected);
-
-	redis_connected = false;
-	redis_context = redisConnect(h.data(), p);
-	
-	if (!redis_context)
-		return (false);
-
-	if (redis_context && redis_context->err) {
-		last_error = redis_context->errstr;
-		redisFree(redis_context);
-		redis_context = 0;
-		return (false);
-	}
-
-	return (redis_connected = true);
+	cryptredis_response_free(cryptredis);
 }
 
 bool
 CryptRedisDb::open(const string &h, int p)
 {
-	if (! h.empty() && p > 0) {
+	setHost("localhost");
+	setPort(6379);
+
+	if (!h.empty())
 		setHost(h);
+
+	if (p > 0)
 		setPort(p);
-	}
-	return (d->connect(d->host, d->port));
+
+	if ((d->cryptredis = cryptredis_open(d->host.data(), d->port)) == NULL)
+		return (false);
+
+	return (d->cryptredis->cr_connected);
 }
 
 void 
 CryptRedisDb::close()
 {
-	if (d->redis_context) {
-		redisFree(d->redis_context);
-		d->redis_context = 0;
+	if (d->cryptredis) {
+		cryptredis_close(d->cryptredis);
+		d->cryptredis = NULL;
 	}
-
-	d->redis_connected = false;
 }
 
 CryptRedisDb::CryptRedisDb() :
 	d(new CryptRedisDbPrivate)
 {
-	d->crypt_enabled = false;
 	d->port = -1;
-	d->redis_connected = false;
-	d->redis_context = 0;
-	explicit_bzero(&d->crkey, sizeof(d->crkey));
+	d->cryptredis = NULL;
 }
 
 CryptRedisDb::~CryptRedisDb()
 {
-	if (d->crypt_enabled)
+	if (d->cryptredis && d->cryptredis->cr_crypt_enabled)
 		setCryptEnabled(false);
 	close();
-	explicit_bzero(&d->crkey, sizeof(d->crkey));
 	delete d;
 }
 
 bool CryptRedisDb::connected()
 {
-	return (d->redis_connected);
+	if (d->cryptredis && d->cryptredis->cr_connected)
+		return (true);
+
+	return (false);
 }
 
 CryptRedisResult
 CryptRedisDb::get(const string &key)
 {
 	CryptRedisResult	 res;
-	redisReply		*redisrpl= 0;
 
-	if (!d->checkConnect(&res))
-		return (res);
+	cryptredis_get_r(d->cryptredis, key.data());
 
-	redisrpl = (redisReply *)redisCommand(d->redis_context, "GET %s",
-	    key.c_str());
-
-	d->buildReply(redisrpl, &res, true);
+	d->buildReply(&res);
 	return (res);
 }
 
 void 
 CryptRedisDb::get(const string &key, CryptRedisResult *reply)
 {
-	redisReply	*redisrpl= 0;
-
-	if (!d->checkConnect(reply))
+	if (cryptredis_get_r(d->cryptredis, key.data()) == -1)
 		return;
 
-	redisrpl = (redisReply *)redisCommand(d->redis_context, "GET %s",
-	    key.c_str());
-
-	d->buildReply(redisrpl, reply, true);
+	d->buildReply(reply);
 }
 
 int
 CryptRedisDb::set(const string &key, const string &value,
 	CryptRedisResult *reply)
 {
-	char		*bufs;
-	u_int32_t	*buf;
-	const char	*data = value.data();
-	size_t		 buflen = value.size(), bufslen;
-	redisReply	*redisrpl = 0;
+	int res;
 
-	if (! d->checkConnect(reply))
-		return CryptRedisResult::Fail;
+	res = cryptredis_set_r(d->cryptredis, key.data(), value.data());
 
-	if (d->crypt_enabled) {
-		buflen = cryptredis_align64(buflen);
-		bufslen = cryptredis_encsiz(buflen);
-
-		if ((buf = (u_int32_t *)calloc(1, buflen)) == NULL)
-			return CryptRedisResult::Fail;
-
-		if ((bufs = (char *)calloc(1, bufslen)) == NULL)
-			return CryptRedisResult::Fail;
-
-		cryptredis_encrypt(&d->crkey, value.data(), buf, buflen);
-		cryptredis_encode(bufs, bufslen, buf, buflen);
-		data = bufs;
+	if (reply) {
+		d->buildReply(reply);
+		reply->setData(res);
 	}
 
-	redisrpl = (redisReply *)redisCommand(d->redis_context, "SET %s %s",
-	    key.data(), data);
-
-	if (!reply) {
-		CryptRedisResult res;
-		d->buildReply(redisrpl, &res);
-		return res.status();
-	}
-
-	if (d->crypt_enabled) {
-		free(buf);
-		free(bufs);
-	}
-
-	d->buildReply(redisrpl, reply);
-	return (reply->status());
+	return (res);
 }
 
 int
 CryptRedisDb::exists(const string &key, CryptRedisResult *reply)
 {
-	redisReply	*redisrpl = 0;
+	int res;
 
-	if (!d->checkConnect(reply))
-		return CryptRedisResult::Fail;
+	res = cryptredis_exists_r(d->cryptredis, key.data());
 
-	redisrpl = (redisReply *)redisCommand(d->redis_context, "EXISTS %s",
-	    key.data());
-
-	if (!reply) {
-		CryptRedisResult res;
-		d->buildReply(redisrpl, &res);
-		return res.status();
+	if (reply) {
+		d->buildReply(reply);
+		if (!res)
+			reply->setData(1);
 	}
 
-	d->buildReply(redisrpl, reply);
-	return (reply->status());
+	return (res);
 }
 
 int
 CryptRedisDb::ping(CryptRedisResult *reply)
 {
-	redisReply	*redisrpl = 0;
+	int res;
 
-	if (!d->checkConnect(reply))
-		return (CryptRedisResult::Fail);
+	res = cryptredis_ping_r(d->cryptredis);
 
-	redisrpl = (redisReply *)redisCommand(d->redis_context, "PING");
-
-	if (!reply) {
-		CryptRedisResult res;
-		d->buildReply(redisrpl, &res);
-		return (res.status());
+	if (reply) {
+		d->buildReply(reply);
+		reply->setData(res);
 	}
 
-	d->buildReply(redisrpl, reply);
-	return (reply->status());
+	return (res);
 }
 
 int
 CryptRedisDb::del(const string &key, CryptRedisResult *reply)
 {
-	redisReply	*redisrpl = 0;
-	if (!d->checkConnect(reply))
-		return (CryptRedisResult::Fail);
+	int res;
 
-	redisrpl = (redisReply *)redisCommand(d->redis_context, "DEL %s",
-	    key.data());
+	res = cryptredis_del_r(d->cryptredis, key.data());
 
-	if (!reply) {
-		CryptRedisResult res;
-		d->buildReply(redisrpl, &res);
-		return (res.status());
+	if (reply) {
+		d->buildReply(reply);
+		reply->setData(res);
 	}
 
-	d->buildReply(redisrpl, reply);
-	return (reply->status());
-}
-
-string
-CryptRedisDb::lastError()
-{
-	return (d->last_error);
+	return (res);
 }
 
 void
@@ -438,37 +204,32 @@ CryptRedisDb::setPort(int p)
 int
 CryptRedisDb::resetKey()
 {
-	char *keyfile;
-
-	if ((keyfile = getenv("CRYPTREDIS_KEYFILE")) == NULL) {
-		d->last_error = "CRYPTREDIS_KEYFILE environment variable not "
-		    "set";
-		return (-1);
-	}
-
-	return (d->setKey(keyfile));
+	return (cryptredis_config_encrypt(d->cryptredis, cryptEnabled() ? 1 :
+	    0));
 }
 
 int
 CryptRedisDb::setCryptEnabled(bool enable)
 {
-	d->crypt_enabled = false;
-	explicit_bzero(&d->crkey, sizeof(d->crkey));
+	int res;
 
-	if (!enable)
-		return (0);
+	if ((res = cryptredis_config_encrypt(d->cryptredis, enable ? 1 : 0)) ==
+	    -1)
+		d->errmsg = "CRYPTREDIS_KEYFILE environment variable not set";
 
-	if (resetKey() == -1)
-		return (-1);
-
-	d->crypt_enabled = true;
-	return (0);
+	return (res);
 }
 
 bool
 CryptRedisDb::cryptEnabled()
 {
-	return (d->crypt_enabled);
+	return (d->cryptredis->cr_crypt_enabled);
+}
+
+string
+CryptRedisDb::lastError()
+{
+	return (d->errmsg);
 }
 
 CRPTRDS_END_NAMESPACE

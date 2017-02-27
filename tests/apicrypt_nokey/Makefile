@@ -1,5 +1,4 @@
 # Copyright (c) 2016 Andre de Oliveira <deoliveirambx@googlemail.com>
-# All rights reserved.
 #
 # Permission to use, copy, modify, and distribute this software for any purpose
 # with or without fee is hereby granted, provided that the above copyright
@@ -13,7 +12,7 @@
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-PROG=		apicrypt_nokeytest
+PROG=		apicrypt_nokey
 
 .PATH:		${.CURDIR}/..
 SRCS=		apicrypt_nokey.cpp

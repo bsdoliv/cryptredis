@@ -1,5 +1,4 @@
 # Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
-# All rights reserved.
 #
 # Permission to use, copy, modify, and distribute this software for any purpose
 # with or without fee is hereby granted, provided that the above copyright
@@ -14,9 +13,13 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 SUBDIR+= lib
+SUBDIR+= bindings-cxx
 SUBDIR+= tests
 
 runtests: .PHONY
 	@cd ${.CURDIR}/tests && ${.MAKE} run;
+
+cleanobj: .PHONY
+	@cd ${.CURDIR} && find . -type d -name obj | xargs rmdir
 
 .include <bsd.subdir.mk>

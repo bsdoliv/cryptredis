@@ -14,7 +14,8 @@
 # PERFORMANCE OF THIS SOFTWARE.
 
 .PATH:		${.CURDIR}/../..
-SRCS+=		encode.c tools.c bsd-crypt.c bsd-rijndael.c db.cpp result.cpp
+SRCS+=		encode.c tools.c bsd-crypt.c bsd-rijndael.c db.cpp result.cpp \
+		cryptredis.c
 
 .PATH:		${.CURDIR}/../../hiredis
 SRCS+=		async.c dict.c hiredis.c net.c sds.c

@@ -34,7 +34,7 @@ char deciphbuf[SIZBUF];
 u_int32_t ciphbuf[SIZBUF];
 
 void
-test_disk_retrieve(rediscrypt_key_t *key)
+test_disk_retrieve(struct cryptredis_key *key)
 {
     int senclen;
     char *senc;
@@ -49,7 +49,7 @@ test_disk_retrieve(rediscrypt_key_t *key)
 int
 main(int argc, char **argv)
 {
-    rediscrypt_key_t key[KEY_SIZE] = { 
+    struct cryptredis_key key[] = {
         0xffaabbcc,
         0xaabbccdd,
         0xbbccddee,

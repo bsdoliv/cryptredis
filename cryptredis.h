@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
- * All rights reserved.
+ * Copyright (c) 2013-2016 Andre de Oliveira <deoliveirambx@googlemail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -18,116 +17,39 @@
 #ifndef CRYPTREDIS_H
 #define CRYPTREDIS_H
 
-#include <string>
-#include <list>
-#include <vector>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define CRPTRDS_NAMESPACE       CrptRds
-#define CRPTRDS_USE_NAMESPACE   using namespace ::CRPTRDS_NAMESPACE;
-#define CRPTRDS_BEGIN_NAMESPACE namespace CRPTRDS_NAMESPACE {
-#define CRPTRDS_END_NAMESPACE   }
-
-using namespace std;
-
-CRPTRDS_BEGIN_NAMESPACE
-
-class CryptRedisResultPrivate;
-class CryptRedisResult
-{
-public:
-	// hiredis mimic type codes
-	static const int Status;
-	static const int Error;
-	static const int Integer;
-	static const int Nil;
-	static const int String;
-	static const int Array;
-
-	// status codes
-	enum {
-		Ok	= 0,
-		Fail	= -1
-	};
-
-	explicit CryptRedisResult();
-	virtual ~CryptRedisResult();
-
-	void setStatus(int d);
-	int status();
-	string statusString();
-	static inline string statusString(int s) {
-		CryptRedisResult r;
-		r.setStatus(s);
-		return r.statusString();
-	};
-
-	int error();
-	string errorString();
-
-	void setData(const string &d);
-	void setData(long long d);
-
-	string toString() const;
-	int toInteger() const;
-
-	void setType(int t);
-	int type() const;
-
-	void setSize(int s);
-	int size() const;
-	void invalidate() {  clear(); };
-	void clear();
-
-private:
-	CryptRedisResultPrivate *d;
+struct cryptredis {
+	struct cryptredis_context	*cr_context;
+	struct cryptredis_key		*cr_key;
+	int				 cr_connected;
+	int			 	 cr_crypt_enabled;
+	uint32_t			 cr_flags;
 };
 
-class CryptRedisResultSet : public list<CryptRedisResult>
-{
-public:
-	string statusString() { return string(); };
-};
+struct cryptredis *
+	 cryptredis_open(const char *, int);
+int	 cryptredis_close(struct cryptredis *);
+int	 cryptredis_config_encrypt(struct cryptredis *, int);
 
-class CryptRedisDbPrivate;
-class CryptRedisDb
-{
-public:
-	explicit CryptRedisDb();
-	virtual ~CryptRedisDb();
+int	 cryptredis_set(const char *, const char *);
+char	*cryptredis_get(const char *);
 
-	void setHost(const string &h);
-	string host();
-	void setPort(int p);
-	int port();
+int	 cryptredis_set_r(struct cryptredis *, const char *, const char *);
+int	 cryptredis_get_r(struct cryptredis *, const char *);
+int	 cryptredis_ping_r(struct cryptredis *);
+int	 cryptredis_exists_r(struct cryptredis *, const char *);
+int	 cryptredis_del_r(struct cryptredis *, const char *);
 
-	bool open(const string &h = string(), int p = -1);
-	void close();
-	bool connected();
+const char
+	*cryptredis_response_string(const struct cryptredis *);
+int	 cryptredis_response_type(const struct cryptredis *);
+void	 cryptredis_response_free(struct cryptredis *);
 
-	int setCryptEnabled(bool);
-	bool cryptEnabled();
-	int resetKey();
+#ifdef __cplusplus
+}
+#endif
 
-	// Redis commands
-	void get(const string &k, CryptRedisResult *rpl);
-	CryptRedisResult get(const string &k);
-	void mget(const vector<string> &keys,
-	    CryptRedisResultSet *rpl) { return; };
-	int set(const string &k, const string &v,
-	    CryptRedisResult *rpl = 0);
-	int del(const string &k, CryptRedisResult *rpl = 0);
-	int exists(const string &k, CryptRedisResult *rpl = 0);
-	int ping(CryptRedisResult *rpl = 0);
-
-	string lastError();
-
-private:
-	CryptRedisDbPrivate *d;
-};
-
-CRPTRDS_END_NAMESPACE
-
-namespace CRPTRDS_NAMESPACE {}
-CRPTRDS_USE_NAMESPACE
-
-#endif //! CRYPTREDIS_H
+#endif /* CRYPTREDIS_H */

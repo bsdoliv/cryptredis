@@ -1,5 +1,4 @@
 # Copyright (c) 2013 Andre de Oliveira <deoliveirambx@googlemail.com>
-# All rights reserved.
 #
 # Permission to use, copy, modify, and distribute this software for any purpose
 # with or without fee is hereby granted, provided that the above copyright
@@ -21,11 +20,10 @@ SRCS=		rediscliget.cpp
 CPPFLAGS+=	-ggdb3
 LDADD+=		-lstdc++
 LDADD+=		-lutil
-LDADD+=		${.CURDIR}/../../lib/libcryptredis.a
+LDADD+=		${.CURDIR}/../../bindings-cxx/obj/libcryptredisxx.a
 
 run: .PHONY
-	env CRYPTREDISKEY=41d962ad5479795a10de0a369dea3b1e ${.CURDIR}/${PROG} \
-		      $${key}
+	env CRYPTREDIS_KEYFILE=test.key ${.CURDIR}/${PROG} $${key}
 
 .include "${.CURDIR}/../perf.mk"
 .include <bsd.prog.mk>

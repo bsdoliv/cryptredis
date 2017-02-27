@@ -55,9 +55,8 @@
 
 static rijndael_ctx ctxt;
 
-static void	cryptredis_dump_ctxt(rijndael_ctx *ctxt);
-static void	cryptredis_key_prepare(const struct cryptredis_key *key, int
-		    kencrypt);
+static void	cryptredis_dump_ctxt(rijndael_ctx *);
+static void	cryptredis_key_prepare(const struct cryptredis_key *, int);
 
 /*
  * Encrypt the data before it goes to swap, the size should be 64-bit
@@ -141,14 +140,14 @@ cryptredis_decrypt(const struct cryptredis_key *key, const u_int32_t *src, char
 }
 
 static void 
-cryptredis_dump_ctxt(rijndael_ctx *ctxt)
+cryptredis_dump_ctxt(rijndael_ctx *ctxtp)
 {
 #ifdef DEBUG_RIJNDAEL_CTXT
         fprintf(stderr, "=>");
-        fprintf(stderr, " c->enc_only: %d", ctxt->enc_only);
-        fprintf(stderr, " c->Nr: %d", ctxt->Nr);
-        fprintf(stderr, " sizeof(c->ek): %ld", sizeof(ctxt->ek));
-        fprintf(stderr, " sizeof(c->dk): %ld", sizeof(ctxt->dk));
+        fprintf(stderr, " c->enc_only: %d", ctxtp->enc_only);
+        fprintf(stderr, " c->Nr: %d", ctxtp->Nr);
+        fprintf(stderr, " sizeof(c->ek): %ld", sizeof(ctxtp->ek));
+        fprintf(stderr, " sizeof(c->dk): %ld", sizeof(ctxtp->dk));
         fprintf(stderr, "\n");
 #endif
 }
