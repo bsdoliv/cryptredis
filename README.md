@@ -1,6 +1,6 @@
 cryptredis
 ==========
-cryptredis is an experimental BSD licensed c++ client library for Redis
+cryptredis is an experimental BSD licensed C and C++ client library for Redis
 database, which also offers symmetric encryption (AES) of string values.
 
 particularly useful for geo-distributed storage scenarios:
