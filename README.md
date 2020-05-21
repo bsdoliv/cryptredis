@@ -46,7 +46,7 @@ Build & Install
 
 Usage
 =====
-Include cryptredis.h, then link libcryptredis.a statically to your application.
+In C++ include cryptredisxx.h, then link libcryptredis.a statically to a given application.
 
 Please check tools/Makefile.template for building/linking hints.
 
@@ -57,7 +57,7 @@ Sample code:
 
 	...
 	// simple.cpp
-	#include "cryptredis.h"
+	#include "cryptredisxx.h"
 
 	CryptRedisDb	crdb;
 
@@ -78,6 +78,8 @@ Use the vanilla redis-client to inspect the stored value key:
 	% redis-cli get foo
 	"c2ihkiDk8bygSPYoGzFFJg=="
 
+For C usage, one might integrate all .c file and all .h files to the application building tools,
+exception to cryptredisxx.h, which is only necessary for the C++ code.
 
 Key setup
 =========
