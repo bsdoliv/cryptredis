@@ -6,8 +6,8 @@ database, which also offers symmetric encryption (AES) of string values.
 particularly useful for geo-distributed storage scenarios:
 encrypt/decrypt with local key, store remotely encrypted.
 
-It has been inspired by MIT's CryptDB [1], Google's encrypted_bigquery_client
-[2], and several concepts from OpenBSD's swap encryption and
+itt has been inspired by MIT's CryptDB [1], Google's encrypted_bigquery_client
+[2] and concepts from OpenBSD's swap encryption and
 cryptographic softraid(4) [3,4].
 
 Currently only strings store is supported, commands get and set.
