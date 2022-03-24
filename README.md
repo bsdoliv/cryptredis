@@ -6,11 +6,11 @@ database, which also offers symmetric encryption (AES) of string values.
 particularly useful for geo-distributed storage scenarios:
 encrypt/decrypt with local key, store remotely encrypted.
 
-itt has been inspired by MIT's CryptDB [1], Google's encrypted_bigquery_client
+it has been inspired by MIT's CryptDB [1], Google's encrypted_bigquery_client
 [2] and concepts from OpenBSD's swap encryption and
 cryptographic softraid(4) [3,4].
 
-Currently only strings store is supported, commands get and set.
+currently, only strings store are supported, plus commands get and set.
 
 [1] http://people.csail.mit.edu/nickolai/papers/raluca-cryptdb.pdf
 
