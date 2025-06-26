@@ -46,7 +46,8 @@ Build & Install
 
 Usage
 =====
-in C++ include cryptredisxx.h, then link libcryptredis.a statically to a given application.
+in C++ include cryptredisxx.h, then link libcryptredis.a statically to the
+application.
 
 please check tools/Makefile.template for building/linking hints.
 
