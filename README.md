@@ -78,8 +78,9 @@ use the vanilla redis-client to inspect the stored value key:
 	% redis-cli get foo
 	"c2ihkiDk8bygSPYoGzFFJg=="
 
-for C usage, one might integrate all .c file and all .h files to the application building tools,
-exception to cryptredisxx.h, which is only necessary for the C++ code.
+for C usage, one might integrate all .c file and all .h files to the
+application building toolchain, exception to cryptredisxx.h, which is only
+necessary for C++.
 
 Key setup
 =========
