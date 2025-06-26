@@ -46,14 +46,14 @@ Build & Install
 
 Usage
 =====
-In C++ include cryptredisxx.h, then link libcryptredis.a statically to a given application.
+in C++ include cryptredisxx.h, then link libcryptredis.a statically to a given application.
 
-Please check tools/Makefile.template for building/linking hints.
+please check tools/Makefile.template for building/linking hints.
 
 API design aims for simplicity, find sample code on tests/apicrypt.cpp,
 tests/rediscliget.cpp and tests/rediscliset.cpp.
 
-Sample code:
+sample code:
 
 	...
 	// simple.cpp
@@ -73,18 +73,18 @@ Sample code:
 	% CRYPTREDIS_KEYFILE="/etc/cryptredis/foobardb.key" ./simple
 	bar
 
-Use the vanilla redis-client to inspect the stored value key:
+use the vanilla redis-client to inspect the stored value key:
 
 	% redis-cli get foo
 	"c2ihkiDk8bygSPYoGzFFJg=="
 
-For C usage, one might integrate all .c file and all .h files to the application building tools,
+for C usage, one might integrate all .c file and all .h files to the application building tools,
 exception to cryptredisxx.h, which is only necessary for the C++ code.
 
 Key setup
 =========
 
-Use openssl command to generate a reasonable key file.
+use openssl command to generate a reasonable key file.
 
 	% openssl enc -aes-256-cbc -k"" -P -md sha512 > /etc/cryptredis.key
 
@@ -94,4 +94,4 @@ Use openssl command to generate a reasonable key file.
 
 License
 ======
-    Check LICENSE file.
+    check LICENSE file.
