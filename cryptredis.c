@@ -75,6 +75,7 @@ cryptredis_open(const char *host, int port)
 			(void)fprintf(stderr, "%s: redisConnect %d\n",
 			    __func__, c->cr_context->hiredis_errnum);
 
+		redisFree(c->cr_context->hiredis_ctx);
 		goto err;
 	}
 
